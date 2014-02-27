@@ -1,0 +1,31 @@
+body {
+    padding-top: 20px;
+    padding-bottom: 40px;
+}
+
+/* Layout */
+
+.container-narrow {
+    margin: 0 auto;
+    max-width: 700px;
+}
+.container-narrow > hr {
+    margin: 30px 0;
+}
+#footer {
+    text-align: right;
+}
+
+/* Custom sections */
+
+.home {
+    text-align: center;
+}
+
+/* Other styles */
+.reverse {
+    -webkit-transform:rotate(-180deg);
+    -moz-transform:rotate(-180deg); 
+    -o-transform:rotate(-180deg); 
+    transform:rotate(-180deg);
+}

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {% block head %}
+            <title>{% block title %}{% endblock %} - AmendPad</title>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <link href="/css/style.css" rel="stylesheet" />
+            <!-- Bootstrap -->
+            <link href="/themes/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen" />
+        {% endblock %}
+    </head>
+    <body>
+        <div class="container-narrow">
+            <div class="masthead">
+                <ul class="nav nav-pills pull-right">
+                    <li class="active"><a href="#">Home</a></li>
+                    <li><a href="https://github.com/bonobo-coop/amendpad" target="_blank">About</a></li>
+                </ul>
+                <h1 class="muted">AmendPad</h1>
+            </div>
+            <hr>
+            <div id="content">
+                {% block content %}
+                {% endblock %}
+            </div>
+            <hr>
+            <div id="footer">
+                {% block footer %}
+                    (<span class="reverse" style="display: inline-block;">C</span>) Copyleft 2014 by <a target="_blank" href="http://bcommunity.es/">Bonobo Community</a>
+                {% endblock %}
+            </div>
+        </div><!-- /container -->
+        <script src="http://code.jquery.com/jquery.js"></script>
+        <script src="/themes/bootstrap/js/bootstrap.min.js"></script>        
+    </body>
+</html>
