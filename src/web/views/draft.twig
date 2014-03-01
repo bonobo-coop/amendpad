@@ -1,0 +1,18 @@
+{% extends "layout.twig" %}
+
+{% block title %}Draft{% endblock %}
+
+{% block content %}
+<div class="draft">
+    <form action="/draft{% if draft %}/{{draft.privateKey}}{% endif %}" method="post">
+        {{ form_widget(form) }}
+        <div class="form-actions">
+            <button type="submit" class="btn btn-large">Save draft</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block javascript %}
+
+{% endblock %}

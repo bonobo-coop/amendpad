@@ -7,6 +7,7 @@
     <h2>Compose a draft and let your people amend it!</h2>
     <p class="lead">Ideal for working collaboratively on any kind of text such as manifestos, statutes -for an association, a foundation, a cooperative, etc-, legislative initiatives, political debates or similar.</p>
     <form action="/draft" method="post">
+        {{ form_widget(form) }}
         <button class="btn btn-large btn-success">Create public pad<br/><small>No sign-up, start now</small></button>
     </form>
 </div>
