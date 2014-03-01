@@ -11,7 +11,7 @@ $app['debug'] = true;
 $app->register(new Silex\Provider\MonologServiceProvider(), array(
     'monolog.logfile' => __DIR__ . '/../data/main.log',
 ))->register(new Silex\Provider\TwigServiceProvider(), array(
-    'twig.path' => __DIR__ . '/views',
+    'twig.path' => __DIR__ . '/../views',
 ))->register(new Silex\Provider\SessionServiceProvider(
     // no config
 ))->register(new Silex\Provider\FormServiceProvider(), array(
