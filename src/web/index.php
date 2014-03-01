@@ -93,4 +93,27 @@ $app->match('/draft/{uuid}', function ($uuid) use ($app, $db) {
     ));
 });
 
+/**
+ * Error handler
+ */
+
+$app->error(function (\Exception $e, $code) use ($app) {
+    if ($app['debug']) {
+        $message = $e->getMessage();
+    } else {
+        switch ($code) {
+            case 404:
+                $message = $e->getMessage();
+                break;
+            default:
+                $message = 'Ouch! Something went terribly wrong...';
+        }        
+    }
+    
+    return $app['twig']->render('error.twig', array(
+        'code'      => $code, 
+        'message'   => $message
+    ));
+});
+
 $app->run();
