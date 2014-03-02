@@ -16,16 +16,10 @@ abstract class Base
     public function __construct($data = array())
     {
         $this->created = $this->updated = time();
-        $this->importData($data);
+        $this->importData($data, FALSE);
     }
     
-    public function __set($name, $value) 
-    {
-        parent::__set($name, $value);
-        $this->updated = time();
-    }
-    
-    public function importData($data)
+    public function importData($data, $update = TRUE)
     {
         if (is_object($data)) {
             $data = get_object_vars($data);
@@ -36,10 +30,14 @@ abstract class Base
                 $this->{$key} = $value;                
             }
         }
+        
+        if ($update) {
+            $this->updated = time();            
+        }
     }
     
     public function exportData()
     {
-        return array_filter((array) $this);
+        return array_filter((array) $this, 'strlen');
     }
 }
