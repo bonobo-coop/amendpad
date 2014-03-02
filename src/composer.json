@@ -3,6 +3,16 @@
         "silex/silex": "~1.1",
         "monolog/monolog": ">=1.0.0",
         "twig/twig": ">=1.8,<2.0-dev",
-        "symfony/twig-bridge": "~2.3"
+        "symfony/twig-bridge": "~2.3",
+        "symfony/form": "~2.3",
+        "symfony/validator": "~2.3",
+        "symfony/config": "~2.3",
+        "symfony/translation": "~2.3",
+        "symfony/locale": "~2.3"
+    },
+    "autoload": {
+        "psr-0": {
+            "App": "lib/"
+        }
     }
 }

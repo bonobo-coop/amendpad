@@ -1,0 +1,25 @@
+{% extends "layout.twig" %}
+
+{% block title %}Draft{% endblock %}
+
+{% block content %}
+<div class="draft">
+    <div class="alert alert-info alert-dismissable">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <strong>Tip!</strong> Use "Headings" (at "Format" combo) to separate and classify draft sections.
+    </div>
+    <form action="/draft{% if draft %}/{{draft.privateKey}}{% endif %}" method="post">
+        {{ form_widget(form) }}
+        <div class="form-actions">
+            <button type="submit" class="btn btn-large">Save draft</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script src="/js/ckeditor/ckeditor.js"></script>
+<script>
+    CKEDITOR.replace('form_body', { customConfig: '/js/ckeditor-config.js' });
+</script>
+{% endblock %}

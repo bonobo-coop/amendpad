@@ -1,0 +1,12 @@
+{% extends "layout.twig" %}
+
+{% block title %}{{code}}{% endblock %}
+
+{% block content %}
+<div class="home">
+    <div class="alert alert-error">
+        {{message}}
+    </div>
+    <a class="btn btn-large" href="/">Back to home</a>
+</div>
+{% endblock %}
