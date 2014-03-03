@@ -1,4 +1,8 @@
 ## Home
 page.home.title: "Inicio"
+page.home.subtitle: "Redacta un borrador y deja que tu gente lo enmiende!"
+page.home.body: "Ideal para trabajar colaborativamente en cualquier tipo de texto, tales como manifiestos, estatutos (para una asociación, fundación, cooperativa, etc), iniciativas legislativas, debates políticos o similares."
+page.home.button.part1: "Crear pad público"
+page.home.button.part2: "Sin registro, empieza ahora"
 ## About
 page.about.title: "Código abierto"
