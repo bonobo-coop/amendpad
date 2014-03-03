@@ -16,7 +16,10 @@ body {
 #footer {
     text-align: right;
 }
-
+    #copyleft {
+        margin-top:7px;
+    }
+    
 /* Custom sections */
 
 .home {

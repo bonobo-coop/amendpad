@@ -8,17 +8,58 @@ require_once __DIR__ . '/../vendor/autoload.php';
 $app = new Silex\Application();
 $app['debug'] = true;
 
-$app->register(new Silex\Provider\MonologServiceProvider(), array(
-    'monolog.logfile' => __DIR__ . '/../data/main.log',
-))->register(new Silex\Provider\TwigServiceProvider(), array(
-    'twig.path' => __DIR__ . '/../views',
-))->register(new Silex\Provider\SessionServiceProvider(
-    // no config
-))->register(new Silex\Provider\FormServiceProvider(), array(
-    'form.secret' => md5($app['session']->getId())
-))->register(new Silex\Provider\TranslationServiceProvider(
-    // no config
-));
+$app->before(function () use ($app) {
+    
+    // Extensions
+    
+    $app->register(new Silex\Provider\MonologServiceProvider(), array(
+        'monolog.logfile' => __DIR__ . '/../data/main.log',
+    ))->register(new Silex\Provider\TwigServiceProvider(), array(
+        'twig.path' => __DIR__ . '/../views',
+    ))->register(new Silex\Provider\SessionServiceProvider(
+        // no config
+    ))->register(new Silex\Provider\FormServiceProvider(), array(
+        'form.secret' => md5($app['session']->getId())
+    ));
+    
+    // Multilanguage (session dependency)
+    
+    $locales = array(
+        'ca' => 'Català',
+        'en' => 'English', 
+        'es' => 'Castellano', 
+    );
+    
+    $locale = $app['request']->get('lang');
+    
+    if ($locale && in_array($locale, array_keys($locales))) {
+        // Valid query param
+        $app['locale'] = $locale;
+        $app['session']->set('locale', $locale);
+    } else {
+        // Session or fallback
+        $app['locale'] = $app['session']->get('locale') ?: 'en';
+    }
+    
+    $app->register(new Silex\Provider\TranslationServiceProvider(), array(
+        'locale' => $app['locale'], // Current
+        'locale_fallbacks' => array('en', 'es', 'ca'), // Default
+    ));
+    
+    $app['translator'] = $app->share($app->extend('translator', function($translator) use ($locales) {
+        $translator->addLoader('yaml', new Symfony\Component\Translation\Loader\YamlFileLoader());
+        foreach (array_keys($locales) as $code) {
+            $translator->addResource('yaml', __DIR__ . '/../locales/' . $code . '.yml', $code);
+        }
+        return $translator;
+    }));
+    
+    $app['twig'] = $app->share($app->extend('twig', function($twig, $app) use ($locales) {
+        $twig->addGlobal('locale', $app['locale']);
+        $twig->addGlobal('locales', $locales);
+        return $twig;
+    }));
+});
 
 /**
  * Dependency injector
