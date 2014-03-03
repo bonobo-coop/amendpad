@@ -6,3 +6,6 @@ page.home.button.part1: "Crear pad público"
 page.home.button.part2: "Sin registro, empieza ahora"
 ## About
 page.about.title: "Código abierto"
+## System
+messages.draft.notfound: "Borrador no encontrado"
+messages.system.globalerror: "Ups! Algo fue terriblemente mal..."

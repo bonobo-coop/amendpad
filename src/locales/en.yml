@@ -6,3 +6,6 @@ page.home.button.part1: "Create public pad"
 page.home.button.part2: "No sign-up, start now"
 ## About
 page.about.title: "Open source"
+## System
+messages.draft.notfound: "Draft not found"
+messages.system.globalerror: "Ouch! Something went terribly wrong..."

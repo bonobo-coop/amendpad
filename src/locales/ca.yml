@@ -6,3 +6,6 @@ page.home.button.part1: "Crear pad públic"
 page.home.button.part2: "Sense registre, comença ara"
 ## About
 page.about.title: "Codi obert"
+## System
+messages.draft.notfound: "Esborrany no trobat"
+messages.system.globalerror: "Ups! Alguna cosa ha anat terriblement malament..."
