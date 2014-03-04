@@ -6,6 +6,14 @@ page.home.button.part1: "Crear pad público"
 page.home.button.part2: "Sin registro, empieza ahora"
 ## About
 page.about.title: "Código abierto"
+## Draft
+page.draft.title: "Borrador"
+page.draft.tip: "Usa encabezamientos para separar y clasificar las secciones del borrador (combo 'Format')"
+### Form
+Title: "Título"
+Body: "Texto"
+Status: "Estado"
+page.draft.button: "Guardar borrador"
 ## System
 messages.draft.notfound: "Borrador no encontrado"
 messages.system.globalerror: "Ups! Algo fue terriblemente mal..."

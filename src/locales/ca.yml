@@ -6,6 +6,14 @@ page.home.button.part1: "Crear pad públic"
 page.home.button.part2: "Sense registre, comença ara"
 ## About
 page.about.title: "Codi obert"
+## Draft
+page.draft.title: "Esborrany"
+page.draft.tip: "Utilitza encapçalaments per separar i clasificar les seccions del esborrany (combo 'Format')"
+### Form
+Title: "Títol"
+Body: "Text"
+Status: "Estat"
+page.draft.form.button: "Desa esborrany"
 ## System
 messages.draft.notfound: "Esborrany no trobat"
 messages.system.globalerror: "Ups! Alguna cosa ha anat terriblement malament..."
