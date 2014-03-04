@@ -1,0 +1,21 @@
+## Home
+page.home.title: "Inici"
+page.home.subtitle: "Redacta un esborrany i deixa que la teva gent ho esmeni!"
+page.home.body: "Ideal per a treballar col·laborativament en qualsevol tipus de text, com ara manifests, estatuts (per a una associació, fundació, cooperativa, etc), iniciatives legislatives, debats polítics o similars."
+page.home.button.part1: "Crear pad públic"
+page.home.button.part2: "Sense registre, comença ara"
+## About
+page.about.title: "Codi obert"
+## Draft
+page.draft.title: "Esborrany"
+page.draft.tip: "Utilitza encapçalaments per separar i clasificar les seccions del esborrany (combo 'Format')"
+### Form
+Title: "Títol"
+Body: "Text"
+Status: "Estat"
+Public: "Publicat"
+Private: "Privat"
+page.draft.button: "Desa esborrany"
+## System
+messages.draft.notfound: "Esborrany no trobat"
+messages.system.globalerror: "Ups! Alguna cosa ha anat terriblement malament..."

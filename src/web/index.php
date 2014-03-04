@@ -8,6 +8,8 @@ require_once __DIR__ . '/../vendor/autoload.php';
 $app = new Silex\Application();
 $app['debug'] = true;
 
+// Extensions
+
 $app->register(new Silex\Provider\MonologServiceProvider(), array(
     'monolog.logfile' => __DIR__ . '/../data/main.log',
 ))->register(new Silex\Provider\TwigServiceProvider(), array(
@@ -16,9 +18,56 @@ $app->register(new Silex\Provider\MonologServiceProvider(), array(
     // no config
 ))->register(new Silex\Provider\FormServiceProvider(), array(
     'form.secret' => md5($app['session']->getId())
-))->register(new Silex\Provider\TranslationServiceProvider(
-    // no config
+))->register(new Silex\Provider\TranslationServiceProvider(), array(
+    'locale_fallbacks' => array('en', 'es', 'ca'), // Default
 ));
+
+// Multilanguage (session dependency)
+        
+$locales = array(
+    'ca' => 'Català',
+    'es' => 'Castellano', 
+    'en' => 'English', 
+);
+
+$app['translator'] = $app->share($app->extend('translator', function($translator) use ($locales) {
+    // Load YAML translation files
+    $translator->addLoader('yaml', new Symfony\Component\Translation\Loader\YamlFileLoader());
+    foreach (array_keys($locales) as $code) {
+        $translator->addResource('yaml', __DIR__ . '/../locales/' . $code . '.yml', $code);
+    }
+    return $translator;
+}));
+
+$app['twig'] = $app->share($app->extend('twig', function($twig) use ($locales) {
+    $twig->addGlobal('locale', 'en'); // Default
+    $twig->addGlobal('locales', $locales);
+    return $twig;
+}));
+
+$app->before(function () use ($app, $locales) {
+    
+    $locale = $app['request']->get('lang');
+    
+    if ($locale && in_array($locale, array_keys($locales))) {
+        // Valid query param
+        $app['locale'] = $locale;
+        $app['session']->set('locale', $locale);
+    } else {
+        // Session or fallback
+        $app['locale'] = $app['session']->get('locale') ?: 'en';
+    }
+    
+    $app['translator'] = $app->share($app->extend('translator', function($translator, $app) {
+        $translator->setLocale($app['locale']);
+        return $translator;
+    }));
+    
+    $app['twig'] = $app->share($app->extend('twig', function($twig, $app) {
+        $twig->addGlobal('locale', $app['locale']);
+        return $twig;
+    }));
+});
 
 /**
  * Dependency injector
@@ -64,11 +113,11 @@ $app->match('/draft/{uuid}', function ($uuid) use ($app, $db) {
             $draft->importData($doc);
         } else {
             // Document not found
-            $app->abort(404, "Draft $uuid does not exist.");
+            $app->abort(404, $app['translator']->trans('messages.draft.notfound'));
         }
     } else {
         // Wrong UUID
-        $app->abort(404, "Draft does not exist.");
+        $app->abort(404, $app['translator']->trans('messages.draft.notfound'));
     }
     
     // Build form
@@ -106,7 +155,7 @@ $app->error(function (\Exception $e, $code) use ($app) {
                 $message = $e->getMessage();
                 break;
             default:
-                $message = 'Ouch! Something went terribly wrong...';
+                $message = $app['translator']->trans('messages.system.globalerror');
         }        
     }
     

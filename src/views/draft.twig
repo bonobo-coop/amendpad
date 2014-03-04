@@ -1,17 +1,17 @@
 {% extends "layout.twig" %}
 
-{% block title %}Draft{% endblock %}
+{% block title %}{{ 'page.draft.title' | trans }}{% endblock %}
 
 {% block content %}
 <div class="draft">
     <div class="alert alert-info alert-dismissable">
         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-        <strong>Tip!</strong> Use "Headings" (at "Format" combo) to separate and classify draft sections.
+        {{ 'page.draft.tip' | trans }}
     </div>
     <form action="/draft{% if draft %}/{{draft.privateKey}}{% endif %}" method="post">
         {{ form_widget(form) }}
         <div class="form-actions">
-            <button type="submit" class="btn btn-large">Save draft</button>
+            <button type="submit" class="btn btn-large">{{ 'page.draft.button' | trans }}</button>
         </div>
     </form>
 </div>

@@ -1,14 +1,14 @@
 {% extends "layout.twig" %}
 
-{% block title %}Home{% endblock %}
+{% block title %}{{ 'page.home.title' | trans }}{% endblock %}
 
 {% block content %}
 <div class="home">
-    <h2>Compose a draft and let your people amend it!</h2>
-    <p class="lead">Ideal for working collaboratively on any kind of text such as manifestos, statutes -for an association, a foundation, a cooperative, etc-, legislative initiatives, political debates or similar.</p>
+    <h2>{{ 'page.home.subtitle' | trans }}</h2>
+    <p class="lead">{{ 'page.home.body' | trans }}</p>
     <form action="/draft" method="post">
         {{ form_widget(form) }}
-        <button class="btn btn-large btn-success">Create public pad<br/><small>No sign-up, start now</small></button>
+        <button class="btn btn-large btn-success">{{ 'page.home.button.part1' | trans }}<br/><small>{{ 'page.home.button.part2' | trans }}</small></button>
     </form>
 </div>
 {% endblock %}

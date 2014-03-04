@@ -1,0 +1,21 @@
+## Home
+page.home.title: "Home"
+page.home.subtitle: "Compose a draft and let your people amend it!"
+page.home.body: "Ideal for working collaboratively on any kind of text such as manifestos, statutes (for an association, a foundation, a cooperative, etc), legislative initiatives, political debates or similar."
+page.home.button.part1: "Create public pad"
+page.home.button.part2: "No sign-up, start now"
+## About
+page.about.title: "Open source"
+## Draft
+page.draft.title: "Draft"
+page.draft.tip: "Use headings to separate and classify draft sections ('Format' combo)"
+### Form
+Title: "Title"
+Body: "Body"
+Status: "Status"
+Public: "Published"
+Private: "Unpublished"
+page.draft.button: "Save draft"
+## System
+messages.draft.notfound: "Draft not found"
+messages.system.globalerror: "Ouch! Something went terribly wrong..."
