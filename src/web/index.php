@@ -125,9 +125,7 @@ $app->match('/draft/{uuid}', function ($uuid) use ($app, $db) {
     $form = $app['form.factory']->createBuilder('form', $draft->exportData())
             ->add('title')
             ->add('body', 'textarea')
-            ->add('status', 'choice', array(
-                'choices' => array(0 => 'Private', 1 => 'Public')
-            ))->getForm();
+            ->getForm();
 
     $form->handleRequest($app['request']);
     

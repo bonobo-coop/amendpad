@@ -15,6 +15,7 @@ abstract class Base
     
     public function __construct($data = array())
     {
+        $this->status = 1; // Published by default
         $this->created = $this->updated = time();
         $this->importData($data, FALSE);
     }
