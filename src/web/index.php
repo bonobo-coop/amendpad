@@ -42,6 +42,7 @@ $app['translator'] = $app->share($app->extend('translator', function($translator
 $app['twig'] = $app->share($app->extend('twig', function($twig) use ($locales) {
     $twig->addGlobal('locale', 'en'); // Default
     $twig->addGlobal('locales', $locales);
+    $twig->addGlobal('host', $_SERVER['SERVER_NAME']);
     return $twig;
 }));
 
