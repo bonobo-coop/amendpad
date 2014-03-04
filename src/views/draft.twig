@@ -1,6 +1,6 @@
 {% extends "layout.twig" %}
 
-{% block title %}{{ 'page.draft.title' | trans }}{% endblock %}
+{% block title %}{{ 'page.draft.title' | trans }} {{ draft.privateKey | slice(0, 8) }}{% endblock %}
 
 {% block content %}
 <div class="draft">
