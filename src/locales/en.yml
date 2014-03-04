@@ -13,6 +13,8 @@ page.draft.tip: "Use headings to separate and classify draft sections ('Format' 
 Title: "Title"
 Body: "Body"
 Status: "Status"
+Public: "Published"
+Private: "Unpublished"
 page.draft.button: "Save draft"
 ## System
 messages.draft.notfound: "Draft not found"

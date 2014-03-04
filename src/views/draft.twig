@@ -11,7 +11,7 @@
     <form action="/draft{% if draft %}/{{draft.privateKey}}{% endif %}" method="post">
         {{ form_widget(form) }}
         <div class="form-actions">
-            <button type="submit" class="btn btn-large">{{ 'page.draft.form.button' | trans }}</button>
+            <button type="submit" class="btn btn-large">{{ 'page.draft.button' | trans }}</button>
         </div>
     </form>
 </div>

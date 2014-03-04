@@ -13,6 +13,8 @@ page.draft.tip: "Usa encabezamientos para separar y clasificar las secciones del
 Title: "Título"
 Body: "Texto"
 Status: "Estado"
+Public: "Publicado"
+Private: "Privado"
 page.draft.button: "Guardar borrador"
 ## System
 messages.draft.notfound: "Borrador no encontrado"
