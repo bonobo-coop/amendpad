@@ -42,6 +42,7 @@ $app['translator'] = $app->share($app->extend('translator', function($translator
 $app['twig'] = $app->share($app->extend('twig', function($twig) use ($locales) {
     $twig->addGlobal('locale', 'en'); // Default
     $twig->addGlobal('locales', $locales);
+    $twig->addGlobal('host', $_SERVER['SERVER_NAME']);
     return $twig;
 }));
 
@@ -124,9 +125,7 @@ $app->match('/draft/{uuid}', function ($uuid) use ($app, $db) {
     $form = $app['form.factory']->createBuilder('form', $draft->exportData())
             ->add('title')
             ->add('body', 'textarea')
-            ->add('status', 'choice', array(
-                'choices' => array(0 => 'Private', 1 => 'Public')
-            ))->getForm();
+            ->getForm();
 
     $form->handleRequest($app['request']);
     
@@ -142,6 +141,33 @@ $app->match('/draft/{uuid}', function ($uuid) use ($app, $db) {
     ));
 });
 
+$app->match('/doc/{uuid}', function ($uuid) use ($app, $db) {
+    // Load document
+    $draft = new App\Entity\Draft();
+    $uuid = $app->escape($uuid);
+    
+    if (App\Db\UUID::isValid($uuid)) {
+        $doc = $db->findOne('drafts', array('publicKey' => $uuid));
+        if ($doc) {
+            $draft->importData($doc);
+            if ($draft->status !== 1) {
+                // Document not published
+                $app->abort(403, $app['translator']->trans('messages.draft.notpublished'));
+            }
+        } else {
+            // Document not found
+            $app->abort(404, $app['translator']->trans('messages.draft.notfound'));
+        }
+    } else {
+        // Wrong UUID
+        $app->abort(404, $app['translator']->trans('messages.draft.notfound'));
+    }
+    
+    return $app['twig']->render('doc.twig', array(
+        'draft' => $draft
+    ));
+});
+
 /**
  * Error handler
  */
@@ -151,6 +177,7 @@ $app->error(function (\Exception $e, $code) use ($app) {
         $message = $e->getMessage();
     } else {
         switch ($code) {
+            case 403:
             case 404:
                 $message = $e->getMessage();
                 break;

@@ -20,13 +20,26 @@ body {
         margin-top:7px;
     }
     
-/* Custom sections */
+/* Home page */
 
 .home {
     text-align: center;
 }
 
+/* Draft form page */
+
+#share {
+    margin-top: 24px;
+}
+
+/* Draft page */
+
+.body h1 {
+    border-bottom: 1px solid #EEEEEE;
+}
+
 /* Other styles */
+
 .reverse {
     -webkit-transform:rotate(-180deg);
     -moz-transform:rotate(-180deg); 

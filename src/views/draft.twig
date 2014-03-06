@@ -1,6 +1,6 @@
 {% extends "layout.twig" %}
 
-{% block title %}{{ 'page.draft.title' | trans }}{% endblock %}
+{% block title %}{{ 'page.draft.title' | trans }} {{ draft.privateKey | slice(0, 8) }}{% endblock %}
 
 {% block content %}
 <div class="draft">
@@ -8,10 +8,15 @@
         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
         {{ 'page.draft.tip' | trans }}
     </div>
-    <form action="/draft{% if draft %}/{{draft.privateKey}}{% endif %}" method="post">
+    <form action="/draft/{{draft.privateKey}}" method="post">
+        <button id="share" type="button" class="btn btn-primary pull-right">
+            <span class="icon icon-white icon-user"></span>
+            <span class="icon icon-white icon-share-alt"></span> {{ 'page.draft.share.button' | trans }}
+        </button>
         {{ form_widget(form) }}
         <div class="form-actions">
-            <button type="submit" class="btn btn-large">{{ 'page.draft.button' | trans }}</button>
+            <button type="submit" class="btn btn-large">{{ 'page.draft.save' | trans }}</button>
+            <a class="btn btn-large btn-link" href="">{{ 'page.draft.cancel' | trans }}</a>
         </div>
     </form>
 </div>
@@ -20,6 +25,14 @@
 {% block javascript %}
 <script src="/js/ckeditor/ckeditor.js"></script>
 <script>
+    // Rich text editor
     CKEDITOR.replace('form_body', { customConfig: '/js/ckeditor-config.js' });
+    // Show/hide share link
+    $('#share').popover({
+         title: '{{ 'page.draft.share.title' | trans }}',
+         content: 'http://{{host}}/doc/{{draft.publicKey}}',
+         placement: 'left',
+         trigger: 'click'
+    });
 </script>
 {% endblock %}
