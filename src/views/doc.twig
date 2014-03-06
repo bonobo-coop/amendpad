@@ -1,0 +1,17 @@
+{% extends "layout.twig" %}
+
+{% block title %}{{ draft.title|e }}{% endblock %}
+
+{% block pagetitle %}{{ draft.title|e }}{% endblock %}
+
+{% block content %}
+<div class="draft">
+    {{ draft.body|raw }}
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script>
+    // TODO
+</script>
+{% endblock %}

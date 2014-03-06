@@ -21,4 +21,5 @@ page.draft.share.title: "Share link"
 page.draft.share.button: "Share"
 ## System
 messages.draft.notfound: "Draft not found"
+messages.draft.notpublished: "Draft not published"
 messages.system.globalerror: "Ouch! Something went terribly wrong..."

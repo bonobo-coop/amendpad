@@ -21,4 +21,5 @@ page.draft.share.title: "Enllaç per a compartir"
 page.draft.share.button: "Compartir"
 ## System
 messages.draft.notfound: "Esborrany no trobat"
+messages.draft.notpublished: "Esborrany no publicat"
 messages.system.globalerror: "Ups! Alguna cosa ha anat terriblement malament..."

@@ -32,6 +32,12 @@ body {
     margin-top: 24px;
 }
 
+/* Draft page */
+
+.body h1 {
+    border-bottom: 1px solid #EEEEEE;
+}
+
 /* Other styles */
 
 .reverse {

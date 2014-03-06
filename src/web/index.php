@@ -141,6 +141,33 @@ $app->match('/draft/{uuid}', function ($uuid) use ($app, $db) {
     ));
 });
 
+$app->match('/doc/{uuid}', function ($uuid) use ($app, $db) {
+    // Load document
+    $draft = new App\Entity\Draft();
+    $uuid = $app->escape($uuid);
+    
+    if (App\Db\UUID::isValid($uuid)) {
+        $doc = $db->findOne('drafts', array('publicKey' => $uuid));
+        if ($doc) {
+            $draft->importData($doc);
+            if ($draft->status !== 1) {
+                // Document not published
+                $app->abort(403, $app['translator']->trans('messages.draft.notpublished'));
+            }
+        } else {
+            // Document not found
+            $app->abort(404, $app['translator']->trans('messages.draft.notfound'));
+        }
+    } else {
+        // Wrong UUID
+        $app->abort(404, $app['translator']->trans('messages.draft.notfound'));
+    }
+    
+    return $app['twig']->render('doc.twig', array(
+        'draft' => $draft
+    ));
+});
+
 /**
  * Error handler
  */
@@ -150,6 +177,7 @@ $app->error(function (\Exception $e, $code) use ($app) {
         $message = $e->getMessage();
     } else {
         switch ($code) {
+            case 403:
             case 404:
                 $message = $e->getMessage();
                 break;

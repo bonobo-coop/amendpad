@@ -21,4 +21,5 @@ page.draft.share.title: "Enlace para compartir"
 page.draft.share.button: "Compartir"
 ## System
 messages.draft.notfound: "Borrador no encontrado"
+messages.draft.notpublished: "Borrador no publicado"
 messages.system.globalerror: "Ups! Algo fue terriblemente mal..."
