@@ -35,10 +35,14 @@ body {
     margin-top: 24px;
 }
 
-/* Draft page */
+/* Doc page */
 
-.body h1 {
-    border-bottom: 1px solid #EEEEEE;
+.draft h2 {
+    padding-bottom: 10px;
+    border-bottom: 3px dotted #ddd;
+}
+.draft .manager {
+    margin-bottom: 10px;
 }
 
 /* Other styles */

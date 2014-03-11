@@ -2,16 +2,74 @@
 
 {% block title %}{{ draft.title|e }}{% endblock %}
 
-{% block pagetitle %}{{ draft.title|e }}{% endblock %}
-
 {% block content %}
 <div class="draft">
+    <button id="manager-button" type="button" class="btn btn-large btn-success pull-right">
+        <span class="icon icon-white icon-bullhorn"></span> <span class="text">{{ 'page.doc.manager.button.on' | trans }}</span>
+    </button>
     {{ draft.body|raw }}
 </div>
+
+<!-- ini DomTal tpl -->
+<div id="template" style="display:none">
+    <div class="manager clearfix" style="display:none">
+        <div class="btn-group pull-left">
+            <button class="btn current-amendments" title="{{ 'page.doc.tooltips.current-amendments' | trans }}">
+                <span class="icon-comment"></span> <span class="counter">${namendments}</span>
+            </button>
+            <button class="btn add-amendment" title="{{ 'page.doc.tooltips.add-amendment' | trans }}">
+                <span class="icon-pencil"></span><span class="icon-plus"></span>
+            </button>
+        </div>
+        <div class="btn-group pull-right">
+            <button class="btn like" title="{{ 'page.doc.tooltips.like' | trans }}">
+                <span class="icon-thumbs-up"></span> <span class="counter">${nlikes}</span>
+            </button>
+            <button class="btn dislike" title="{{ 'page.doc.tooltips.dislike' | trans }}">
+                <span class="icon-thumbs-down"></span> <span class="counter">${ndislikes}</span>
+            </button>
+            <button class="btn doubt" title="{{ 'page.doc.tooltips.doubt' | trans }}">
+                <span class="icon-question-sign"></span> <span class="counter">${ndoubts}</span>
+            </button>
+        </div>
+    </div>
+</div>
+<!-- end DomTal tpl -->
+
 {% endblock %}
 
 {% block javascript %}
+<script src="/js/vendor/DomTal.js"></script>
 <script>
-    // TODO
+    // Add amendments to each point
+    var tpl = new DomTal();
+    tpl.load('#template');
+    $('p,ol,ul', '.draft').each(function(index, elem){
+        tpl.set({
+            namendments: 0,
+            nlikes: 0,
+            ndislikes: 0,
+            ndoubts: 0
+        });
+        $(elem).after(tpl.run());
+    });
+    // Add tooltips to template
+    $('.manager button').tooltip();
+    // Enable / disable amendments manager
+    $('#manager-button').click(function(){
+        var $button = $(this),
+            enabled = $button.hasClass('btn-inverse');
+        // Change button
+        $button
+            .removeClass(enabled ? 'btn-inverse' : 'btn-success')
+            .addClass(enabled ? 'btn-success' : 'btn-inverse');
+        $('.icon', $button)
+            .removeClass(enabled ? 'icon-repeat' : 'icon-bullhorn')
+            .addClass(enabled ? 'icon-bullhorn' : 'icon-repeat');
+        $('.text', $button)
+            .html(enabled ? '{{ 'page.doc.manager.button.on' | trans }}' : '{{ 'page.doc.manager.button.off' | trans }}');
+        // Enable points interaction
+        enabled ? $('.manager').hide() : $('.manager').show();
+    });
 </script>
 {% endblock %}
