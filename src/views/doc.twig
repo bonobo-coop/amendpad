@@ -1,16 +1,17 @@
 {% extends "layout.twig" %}
 
-{% block title %}{{ draft.title|e }}{% endblock %}
+{% block title %}{{ 'page.draft.title' | trans }} {{ draft.publicKey | slice(0, 8) }}{% endblock %}
 
 {% block content %}
 <div class="draft">
     <button id="manager-button" type="button" class="btn btn-large btn-success pull-right">
         <span class="icon icon-white icon-bullhorn"></span> <span class="text">{{ 'page.doc.manager.button.on' | trans }}</span>
     </button>
+    <h1>{{ draft.title|e }}</h1>
     {{ draft.body|raw }}
 </div>
 
-<!-- ini DomTal tpl -->
+<!-- ini DomTal tpls -->
 <div id="template" style="display:none">
     <div class="manager clearfix" style="display:none">
         <div class="btn-group pull-left">
@@ -18,7 +19,7 @@
                 <span class="icon-comment"></span> <span class="counter">${namendments}</span>
             </button>
             <button class="btn add-amendment" title="{{ 'page.doc.tooltips.add-amendment' | trans }}">
-                <span class="icon-pencil"></span><span class="icon-plus"></span>
+                <span class="icon-pencil"></span>
             </button>
         </div>
         <div class="btn-group pull-right">
@@ -34,14 +35,24 @@
         </div>
     </div>
 </div>
-<!-- end DomTal tpl -->
+<div id="template-plus" style="display:none">
+    <span class="btn-group manager" style="display:none">
+        <button class="btn current-additions" title="{{ 'page.doc.tooltips.current-additions' | trans }}">
+            <span class="icon-inbox"></span> <span class="counter">${nadditions}</span>
+        </button>
+        <button class="btn add-point" title="{{ 'page.doc.tooltips.add-point' | trans }}">
+            <span class="icon-plus"></span>
+        </button>
+    </span>
+</div>
+<!-- end DomTal tpls -->
 
 {% endblock %}
 
 {% block javascript %}
 <script src="/js/vendor/DomTal.js"></script>
 <script>
-    // Add amendments to each point
+    // Add amendments management
     var tpl = new DomTal();
     tpl.load('#template');
     $('p,ol,ul', '.draft').each(function(index, elem){
@@ -52,6 +63,13 @@
             ndoubts: 0
         });
         $(elem).after(tpl.run());
+    });
+    tpl.load('#template-plus');
+    $(':header', '.draft').each(function(index, elem){
+        tpl.set({
+            nadditions: 0
+        });
+        $(elem).append(tpl.run());
     });
     // Add tooltips to template
     $('.manager button').tooltip();
