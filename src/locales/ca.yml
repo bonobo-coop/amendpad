@@ -8,6 +8,7 @@ page.home.button.part2: "Sense registre, comença ara"
 page.about.title: "Codi obert"
 ## Draft
 page.draft.title: "Esborrany"
+page.draft.admin: "administració"
 page.draft.tip: "Utilitza encapçalaments per separar i clasificar les seccions del esborrany (combo 'Format')"
 ### Form
 Title: "Títol"

@@ -8,6 +8,7 @@ page.home.button.part2: "Sin registro, empieza ahora"
 page.about.title: "Código abierto"
 ## Draft
 page.draft.title: "Borrador"
+page.draft.admin: "administración"
 page.draft.tip: "Usa encabezamientos para separar y clasificar las secciones del borrador (combo 'Format')"
 ### Form
 Title: "Título"

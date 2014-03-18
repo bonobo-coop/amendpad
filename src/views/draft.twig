@@ -1,6 +1,6 @@
 {% extends "layout.twig" %}
 
-{% block title %}{{ 'page.draft.title' | trans }} {{ draft.privateKey | slice(0, 8) }}{% endblock %}
+{% block title %}{{ 'page.draft.title' | trans }} {{ draft.privateKey | slice(0, 8) }} ({{ 'page.draft.admin' | trans }}){% endblock %}
 
 {% block content %}
 <div class="draft">
@@ -23,9 +23,9 @@
 {% endblock %}
 
 {% block javascript %}
-<script src="/js/vendor/ckeditor/ckeditor.js"></script>
-<script src="/js/jquery.uniqid.js"></script>
-<script>
+<script type="text/javascript" src="/js/vendor/ckeditor/ckeditor.js"></script>
+<script type="text/javascript" src="/js/jquery.uniqid.js"></script>
+<script type="text/javascript">
     // Rich text editor
     CKEDITOR.replace('form_body', { 
         customConfig: '/js/ckeditor-config.js',

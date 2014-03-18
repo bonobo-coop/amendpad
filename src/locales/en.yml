@@ -8,6 +8,7 @@ page.home.button.part2: "No sign-up, start now"
 page.about.title: "Open source"
 ## Draft
 page.draft.title: "Draft"
+page.draft.admin: "administration"
 page.draft.tip: "Use headings to separate and classify draft sections ('Format' combo)"
 ### Form
 Title: "Title"
