@@ -1,17 +1,235 @@
 {% extends "layout.twig" %}
 
-{% block title %}{{ draft.title|e }}{% endblock %}
+{% block head %}
+<link href="/css/amendments.css" rel="stylesheet" />
+{% endblock %}
 
-{% block pagetitle %}{{ draft.title|e }}{% endblock %}
+{% block title %}
+    {{ 'page.draft.title' | trans }} {{ draft.privateKey | slice(0, 8) }}
+{% endblock %}
 
 {% block content %}
 <div class="draft">
+    <button id="manager-button" type="button" class="btn btn-large btn-success pull-right">
+        <span class="icon icon-white icon-bullhorn"></span> <span class="text">{{ 'page.doc.manager.button.on' | trans }}</span>
+    </button>
+    <h1 id="root">{{ draft.title|e }}</h1>
     {{ draft.body|raw }}
 </div>
+
+<!-- ini DomTal tpls -->
+<div id="template" style="display:none">
+    <div class="manager">
+        <div class="clearfix">
+            <div class="btn-group pull-left">
+                <button class="btn current-amendments closed" title="{{ 'page.doc.tooltips.current-amendments' | trans }}">
+                    <span class="icon-comment"></span> <span class="counter">${namendments}</span>
+                </button>
+                <button class="btn add-amendment closed" title="{{ 'page.doc.tooltips.add-amendment' | trans }}">
+                    <span class="icon-pencil"></span>
+                </button>
+            </div>
+            <div class="btn-group pull-right">
+                <button class="btn like" title="{{ 'page.doc.tooltips.like' | trans }}">
+                    <span class="icon-thumbs-up"></span> <span class="counter">${nlikes}</span>
+                </button>
+                <button class="btn dislike" title="{{ 'page.doc.tooltips.dislike' | trans }}">
+                    <span class="icon-thumbs-down"></span> <span class="counter">${ndislikes}</span>
+                </button>
+                <button class="btn doubt" title="{{ 'page.doc.tooltips.doubt' | trans }}">
+                    <span class="icon-question-sign"></span> <span class="counter">${ndoubts}</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="template-plus" style="display:none">
+    <span class="btn-group manager" style="display:none">
+        <button class="btn current-additions closed" title="{{ 'page.doc.tooltips.current-additions' | trans }}">
+            <span class="icon-inbox"></span> <span class="counter">${nadditions}</span>
+        </button>
+        <button class="btn add-point closed" title="{{ 'page.doc.tooltips.add-point' | trans }}">
+            <span class="icon-plus"></span>
+        </button>
+    </span>
+</div>
+<!-- end DomTal tpls -->
+
 {% endblock %}
 
 {% block javascript %}
-<script>
-    // TODO
+<script type="text/javascript" src="/js/vendor/DomTal.js"></script>
+<script type="text/javascript" src="/js/vendor/diff_match_patch.js"></script>
+<script type="text/javascript" src="/js/vendor/jquery.amend.js"></script>
+<script type="text/javascript">
+    // Initalize listeners
+    var $fake = $('<div>', {
+        'id': 'fake'
+    }).on('jqa-confirm', function(event, data, callback) {
+        alert('Success creating amendment at ' + data['reference']);
+        callback(true);
+    }).hide();
+    
+    $('body').after($fake);
+        
+    // Add amendments management
+    var tpl = new DomTal();
+    
+    $(':header,p,ol,ul', '.draft').each(function(index, elem){        
+        
+        // Build custom container
+        var $container = $('<div>', {
+          'class': 'amendments-container'
+        }).hide();
+        
+        $(elem).after($container);
+        
+        // Render manager (buttons)
+        var showSelector,
+            addSelector,
+            parent;
+            
+        if ($(this).is(':header')) {
+            // Plus template
+            tpl.load('#template-plus');
+            tpl.set({
+                nadditions: 0
+            });
+            // Preprocess structure
+            var original = elem.innerHTML;
+            $(elem)
+                .empty()
+                .append($('<span>', {
+                    'class': 'jqa-text',
+                    'html': original
+                }))
+                .append(tpl.run());
+            // Custom buttons
+            parent = elem;
+            showSelector = '.current-additions';
+            addSelector = '.add-point';
+        } else {
+            // Amend template
+            tpl.load('#template');
+            tpl.set({
+                namendments: 0,
+                nlikes: 0,
+                ndislikes: 0,
+                ndoubts: 0
+            });
+            $(elem).after(tpl.run());
+            // Add separation for a better UX
+            $container.after($('<hr>', {
+                'class': 'manager'
+            }));
+            // Custom buttons
+            parent = $(elem).next();
+            showSelector = '.current-amendments';
+            addSelector = '.add-amendment';
+        }
+        
+        var $showLink = 
+            $(showSelector, parent).click(function(event){
+                $(this).toggleClass('opened').toggleClass('closed');
+                $(elem).trigger('jqa-toggle');
+                // Avoid follow            
+                event.preventDefault();
+                return false;
+            }).on('jqa-counter', function(event, count){
+                $('.counter', this).html(count);
+            });
+        
+        var $addLink = 
+            $(addSelector, parent).click(function(event){
+                if ($(this).is('.closed')) {
+                    $(this).toggleClass('opened').toggleClass('closed');
+                    $(elem).trigger('jqa-new');
+                }
+                // Avoid follow            
+                event.preventDefault();
+                return false;
+            }).on('jqa-cancel jqa-confirm', function(){
+                $(this).toggleClass('opened').toggleClass('closed');
+                $container.show();
+            });
+        
+        // Activate amendments plugin
+        $(elem).amend({
+            attrname: 'id',
+            container: $container,
+            listeners: [
+                $fake,
+                $showLink,
+                $addLink
+            ],
+            style: {
+                'form':     'amend-form',
+                'label':    'amend-label',
+                'input':    'amend-input',
+                'textarea': 'amend-textarea',
+                'preview':  'uneditable-input',
+                'button':   {
+                  'default':  'btn',
+                  'cancel':   'btn-link',
+                  'delete':   'btn-danger amend-delete'
+                }
+            },            
+            statuses: {
+/*
+                'pending':  "{{ 'page.doc.jqa.status.pending' | trans }}",
+                'approved': "{{ 'page.doc.jqa.status.approved' | trans }}",
+                'rejected': "{{ 'page.doc.jqa.status.rejected' | trans }}",
+*/
+            },
+            t: function(text) {        
+                switch(text) {
+                    case 'Send':
+                        return "{{ 'page.doc.jqa.send' | trans }}";
+                    case 'Cancel':
+                        return "{{ 'page.doc.jqa.cancel' | trans }}";
+                    case 'Delete text':
+                        return "{{ 'page.doc.jqa.delete' | trans }}";
+                    case 'Amendment':
+                        return "{{ 'page.doc.jqa.amendment' | trans }}";
+                    case 'Reason':
+                        return "{{ 'page.doc.jqa.reason' | trans }}";
+                    case 'Name':
+                        return "{{ 'page.doc.jqa.name' | trans }}";
+                    case 'Confirm':
+                        return "{{ 'page.doc.jqa.confirm' | trans }}";
+                    case 'sent by':
+                        return "{{ 'page.doc.jqa.sentby' | trans }}";
+                    case 'anonymous':
+                        return "{{ 'page.doc.jqa.anonymous' | trans }}";
+                    case 'Add new text inside':
+                        return "{{ 'page.doc.jqa.add' | trans }}";
+                    default:
+                        return text;
+                }
+            }
+        });
+    });
+    
+    // Add tooltips to template
+    $('.manager button').tooltip();
+    
+    // Enable / disable amendments manager
+    $('.manager, .amendments-container').hide();
+    
+    $('#manager-button').click(function(){
+        var $button = $(this),
+            enabled = $button.hasClass('btn-inverse');
+        // Change button
+        $button
+            .removeClass(enabled ? 'btn-inverse' : 'btn-success')
+            .addClass(enabled ? 'btn-success' : 'btn-inverse');
+        $('.icon', $button)
+            .removeClass(enabled ? 'icon-repeat' : 'icon-bullhorn')
+            .addClass(enabled ? 'icon-bullhorn' : 'icon-repeat');
+        $('.text', $button)
+            .html(enabled ? '{{ 'page.doc.manager.button.on' | trans }}' : '{{ 'page.doc.manager.button.off' | trans }}');
+        // Enable points interaction
+        enabled ? $('.manager, .amendments-container').hide() : $('.manager').show();
+    });
 </script>
 {% endblock %}

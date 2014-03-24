@@ -1,6 +1,6 @@
 {% extends "layout.twig" %}
 
-{% block title %}{{ 'page.draft.title' | trans }} {{ draft.privateKey | slice(0, 8) }}{% endblock %}
+{% block title %}{{ 'page.draft.title' | trans }} {{ draft.privateKey | slice(0, 8) }} ({{ 'page.draft.admin' | trans }}){% endblock %}
 
 {% block content %}
 <div class="draft">
@@ -8,7 +8,7 @@
         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
         {{ 'page.draft.tip' | trans }}
     </div>
-    <form action="/draft/{{draft.privateKey}}" method="post">
+    <form id="draft-form" action="/draft/{{draft.privateKey}}" method="post">
         <button id="share" type="button" class="btn btn-primary pull-right">
             <span class="icon icon-white icon-user"></span>
             <span class="icon icon-white icon-share-alt"></span> {{ 'page.draft.share.button' | trans }}
@@ -23,10 +23,22 @@
 {% endblock %}
 
 {% block javascript %}
-<script src="/js/ckeditor/ckeditor.js"></script>
-<script>
+<script type="text/javascript" src="/js/vendor/ckeditor/ckeditor.js"></script>
+<script type="text/javascript" src="/js/jquery.uniqid.js"></script>
+<script type="text/javascript">
     // Rich text editor
-    CKEDITOR.replace('form_body', { customConfig: '/js/ckeditor-config.js' });
+    CKEDITOR.replace('form_body', { 
+        customConfig: '/js/ckeditor-config.js',
+        extraAllowedContent: '*[id]'
+    });
+    // Add unique ids to DOM before save (required to amend text later)
+    CKEDITOR.on("instanceReady", function() {
+        $('#draft-form').submit(function(event) {
+            var iframes = $('.cke_wysiwyg_frame').contents();
+            $(':header, p, ul, ol', iframes[0]).uniqid();
+            CKEDITOR.instances.form_body.updateElement();
+        });
+    });
     // Show/hide share link
     $('#share').popover({
          title: '{{ 'page.draft.share.title' | trans }}',
