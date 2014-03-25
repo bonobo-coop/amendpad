@@ -325,30 +325,38 @@
       $confirmForm = $('<form>', {
         'action': '#',
         'class': this.style.form
-      }).append($('<label>', {
-        'for': 'amendment',
-        'html': this.t('Amendment'),
-        'class': this.style.label
-      })).append($('<div>', {
-        'html': extra ? data['amendment'] 
-                : this.renderTextDiff(original, data['amendment']),
-        'class': this.style.preview
-      })).append($('<label>', {
-        'for': 'reason',
-        'html': this.t('Reason'),
-        'class': this.style.label
-      })).append($('<textarea>', {
-        'name': 'reason',
-        'class': this.style.textarea
-      })).append($('<label>', {
-        'for': 'author',
-        'html': this.t('Name'),
-        'class': this.style.label
-      })).append($('<input>', {
-        'name': 'author',
-        'type': 'text',
-        'class': this.style.input
-      })).append($submitBtn).append($cancelBtn);
+      }).append(
+        $('<div>').append($('<label>', {
+          'for': 'amendment',
+          'html': this.t('Amendment'),
+          'class': this.style.label
+        })).append($('<div>', {
+          'html': extra ? data['amendment'] 
+                  : this.renderTextDiff(original, data['amendment']),
+          'class': this.style.preview
+        }))
+      ).append(
+        $('<div>').append($('<label>', {
+          'for': 'reason',
+          'html': this.t('Reason'),
+          'class': this.style.label
+        })).append($('<textarea>', {
+          'name': 'reason',
+          'class': this.style.textarea
+        }))
+      ).append(
+        $('<div>').append($('<label>', {
+          'for': 'author',
+          'html': this.t('Name'),
+          'class': this.style.label
+        })).append($('<input>', {
+          'name': 'author',
+          'type': 'text',
+          'class': this.style.input
+        }))
+      )
+      .append($submitBtn)
+      .append($cancelBtn);
       
       // Render new form
       $oldForm.before($confirmForm).remove();
@@ -363,14 +371,12 @@
         data['reference'] = $node.attr(self.attrname);
         data['extra'] = extra;
         data['status'] = 'pending';
-        // Alert listeners
-        self.notify('jqa-confirm', [data, function(success) {
+        // Alert listeners (data + successCallback)
+        self.notify('jqa-confirm', [data, function() {
           // Reset
           close();
           // Add amendment
-          if (success) {
-            self.renderAmendments(node, [data]);            
-          }
+          self.renderAmendments(node, [data]);
         }]);
         // Avoid submit
         event.preventDefault();

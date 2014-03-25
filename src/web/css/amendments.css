@@ -53,6 +53,10 @@
     background: #ccc;
     padding: 8px;
 }
+    .amend-form .alert-error {
+        background: none;
+        border: none;    
+    }
 .amend-label span {
     font-weight: bold;
 }

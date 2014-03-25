@@ -53,6 +53,12 @@
         </button>
     </span>
 </div>
+<div id="template-alert" style="display:none">
+    <div class="alert ${class}">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        ${content}
+    </div>
+</div>
 <!-- end DomTal tpls -->
 
 {% endblock %}
@@ -61,20 +67,70 @@
 <script type="text/javascript" src="/js/vendor/DomTal.js"></script>
 <script type="text/javascript" src="/js/vendor/diff_match_patch.js"></script>
 <script type="text/javascript" src="/js/vendor/jquery.amend.js"></script>
+<script type="text/javascript" src="/js/vendor/jquery.rest.js"></script>
 <script type="text/javascript">
-    // Initalize listeners
+    /**
+     * Template engine
+     */
+    var tpl = new DomTal();
+    /** 
+     * Initialize REST client
+     * Nested resources: /api/doc/{id}/amendment
+     */
+    var client = new $.RestClient('/api/', {
+        ajax: {
+            contentType: 'application/json; charset=UTF-8'
+        },
+        cache: 0,
+        stringifyData: true
+    });
+    client.add('doc');
+    client.doc.add('amendment');
+    // Initalize listener
     var $fake = $('<div>', {
         'id': 'fake'
-    }).on('jqa-confirm', function(event, data, callback) {
-        alert('Success creating amendment at ' + data['reference']);
-        callback(true);
+    }).on('jqa-confirm', function(event, data, successCb) {
+        // Add CSRF token
+        data._token = '{{ csrf_token }}';
+        // Call API
+        client.doc.amendment.create('{{ draft.publicKey }}', data).always(function(resp){
+            // First argument data|jqXHR
+            resp = resp.responseJSON ? resp.responseJSON : resp;
+            // Error management
+            var $elem = $('#' + data.reference),
+                $form = $elem.next('form');
+            $('.warning', $form).removeClass('warning');
+            $('.alert-error', $form).remove();
+            
+            if (resp.exception && typeof resp.exception.message === 'object') {
+                for (var name in resp.exception.message) {
+                    $('*[name="' + name + '"]').after($('<div>', {
+                        class: 'alert-error',
+                        html: resp.exception.message[name]
+                    })).parent().addClass('control-group warning');
+                }
+            } else {
+                tpl.load('#template-alert');
+                tpl.set({
+                    class: resp.success ? 'alert-success' : 'alert-error',
+                    content: resp.success 
+                        ? '{{ 'messages.node.created' | trans }} :)' 
+                        : resp.exception.message
+                });
+                $elem.after(tpl.run());
+                // Fade out alert and remove form
+                if (resp.success) {
+                    successCb();
+                }
+            }
+        });
     }).hide();
     
     $('body').after($fake);
-        
-    // Add amendments management
-    var tpl = new DomTal();
     
+    /** 
+     * Amendments UX management
+     */    
     $(':header,p,ol,ul', '.draft').each(function(index, elem){        
         
         // Build custom container
@@ -173,13 +229,11 @@
                   'cancel':   'btn-link',
                   'delete':   'btn-danger amend-delete'
                 }
-            },            
+            },
             statuses: {
-/*
-                'pending':  "{{ 'page.doc.jqa.status.pending' | trans }}",
-                'approved': "{{ 'page.doc.jqa.status.approved' | trans }}",
-                'rejected': "{{ 'page.doc.jqa.status.rejected' | trans }}",
-*/
+                '{{ constant('App\\Entity\\Amendment::STATUS_PENDING') }}': "{{ 'page.doc.jqa.status.pending' | trans }}",
+                '{{ constant('App\\Entity\\Amendment::STATUS_APPROVED') }}': "{{ 'page.doc.jqa.status.approved' | trans }}",
+                '{{ constant('App\\Entity\\Amendment::STATUS_REJECTED') }}': "{{ 'page.doc.jqa.status.rejected' | trans }}"
             },
             t: function(text) {        
                 switch(text) {
