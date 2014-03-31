@@ -188,21 +188,22 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 $app->post('/api/doc/{uuid}/amendment/', function ($uuid) use ($app, $db) {
     // Use form to validate data
-    $form = $app['form.factory']->createBuilder('form')
-        ->add('reference', 'text', array(
+    $form = $app['form.factory']->createBuilder()
+        ->add('tid', 'text', array(
             'constraints' => array(new Assert\NotBlank())
         ))
-        ->add('amendment', 'textarea', array(
+        ->add('body', 'textarea', array(
             'constraints' => array(new Assert\NotBlank())
         ))
         ->add('reason', 'textarea', array(
             'constraints' => array(new Assert\NotBlank())
         ))
-        ->add('author', 'text', array(
+        ->add('uid', 'text', array(
             'constraints' => array(new Assert\NotBlank())
         ))
-        ->add('extra')  // Optional
-        ->add('status') // Not used but required by form validation
+        ->add('addition', 'text', array(
+            'constraints' => array(new Assert\NotBlank())
+        ))
         ->getForm();
     
     // Simulate form request structure (adapter pattern)
@@ -214,14 +215,10 @@ $app->post('/api/doc/{uuid}/amendment/', function ($uuid) use ($app, $db) {
     if ($form->isValid()) {
         // Map data
         $data = $form->getData();
-        $amendment = new App\Entity\Amendment();
-        $amendment->tid = $data['reference'];
-        $amendment->body = $data['amendment'];
-        $amendment->reason = $data['reason'];
-        $amendment->uid = $data['author'];
-        $amendment->addition = (boolean)$data['extra'];
+        $data['addition'] = (boolean)$data['addition'];        
+        // Build amendment
+        $amendment = new App\Entity\Amendment($data);
         $amendment->status = App\Entity\Amendment::STATUS_PENDING;
-        
         // Save amendment
         if ($db->create('draft_' . $uuid, $amendment->exportData())) {
             return $app->json(array('success' => true));

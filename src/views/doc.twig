@@ -89,7 +89,7 @@
     // Initalize listener
     var $fake = $('<div>', {
         'id': 'fake'
-    }).on('jqa-confirm', function(event, data, successCb) {
+    }).on('jqa-confirm', function(event, $form, data, successCb) {
         // Add CSRF token
         data._token = '{{ csrf_token }}';
         // Call API
@@ -97,8 +97,6 @@
             // First argument data|jqXHR
             resp = resp.responseJSON ? resp.responseJSON : resp;
             // Error management
-            var $elem = $('#' + data.reference),
-                $form = $elem.next('form');
             $('.warning', $form).removeClass('warning');
             $('.alert-error', $form).remove();
             
@@ -117,8 +115,8 @@
                         ? '{{ 'messages.node.created' | trans }} :)' 
                         : resp.exception.message
                 });
-                $elem.after(tpl.run());
-                // Fade out alert and remove form
+                $form.after(tpl.run());
+                // Call success callback
                 if (resp.success) {
                     successCb();
                 }
@@ -204,7 +202,7 @@
                 // Avoid follow            
                 event.preventDefault();
                 return false;
-            }).on('jqa-cancel jqa-confirm', function(){
+            }).on('jqa-success jqa-cancel', function(){
                 $(this).toggleClass('opened').toggleClass('closed');
                 $container.show();
             });
@@ -213,6 +211,14 @@
         $(elem).amend({
             attrname: 'id',
             container: $container,
+            fields: {
+                reference: 'tid',
+                amendment: 'body',
+                extra: 'addition',
+                reason: 'reason',
+                author: 'uid',
+                status: 'status'
+            },
             listeners: [
                 $fake,
                 $showLink,

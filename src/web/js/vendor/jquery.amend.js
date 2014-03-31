@@ -9,19 +9,11 @@
  * - attrname: html attribute containing text id ("data-reference" by default)
  * - auto: show amend form when user clicks on text (false by default)
  * - container: custom amendments container (optional)
+ * - fields: custom amendment fields map ~ data structure (see default opts)
  * - listeners: collection of listeners
  * - statuses: custom amendment status map (see default opts)
  * - style: custom class names for form elements (see default opts)
  * - t: translate function with text as 1st argument and tag as 2nd (optional)
- * 
- * Amendments should have this data structure:
- *
- * - id: amendment unique id
- * - reference: original text id
- * - amendment: new text
- * - reason: amendment's justification
- * - author: username
- * - status: "pending", "approved" or "rejected" 
  *
  * HTML should contain only headers and paragraphs identified by custom attr
  * and CSS could be customized using config and library specific selectors.
@@ -40,6 +32,14 @@
     'attrname': 'data-reference',
     'auto': false,
     'container': null,
+    'fields': {
+      'reference': 'reference', // original text id
+      'amendment': 'amendment', // modified or new text
+      'extra': 'extra',         // new text flag
+      'reason': 'reason',       // justification
+      'author': 'author',       // username
+      'status': 'status'        // approval status
+    },
     'listeners': [],
     'style': {
       'form':     'amend-form',
@@ -93,11 +93,11 @@
       var data = {};
       for (var i in json) {
         // Initialize list
-        if (!data[json[i]['reference']]) {
-          data[json[i]['reference']] = [];
+        if (!data[json[i][this.fields['reference']]]) {
+          data[json[i][this.fields['reference']]] = [];
         }
         // Add element
-        data[json[i]['reference']].push(json[i]);
+        data[json[i][this.fields['reference']]].push(json[i]);
       }
       
       // Start amendments system
@@ -162,27 +162,27 @@
           'class': 'amendment'
         }).append($('<li>', {
           'class': 'amendment-text',
-          'html': list[i]['extra'] ? 
-                  '<span class="plus">[+]</span> ' + list[i]['amendment'] 
-                  : this.renderTextDiff(original, list[i]['amendment'])
+          'html': list[i][this.fields['extra']] ? 
+                  '<span class="plus">[+]</span> ' + list[i][this.fields['amendment']] 
+                  : this.renderTextDiff(original, list[i][this.fields['amendment']])
         }));
         
-        if (!this.isEmpty(list[i]['reason'])) {
+        if (!this.isEmpty(list[i][this.fields['reason']])) {
           $ul.append($('<li>', {
             'class': 'amendment-reason',
             'html': '<span>' + this.t('Reason') + ':</span> ' + 
-                      list[i]['reason']
+                      list[i][this.fields['reason']]
           }));
         }
         
         $ul.append($('<li>', {
           'class': 'amendment-author',
           'html': '<span>' + this.t('sent by') + ' </span> ' + 
-                    (this.isEmpty(list[i]['author']) ? this.t('anonymous') 
-                      : list[i]['author'])
+                    (this.isEmpty(list[i][this.fields['author']]) ? this.t('anonymous') 
+                      : list[i][this.fields['author']])
         })).append($('<li>', {
-          'class': 'amendment-status ' + list[i]['status'],
-          'html': this.statuses[list[i]['status']]
+          'class': 'amendment-status amendment-status-' + list[i][this.fields['status']],
+          'html': this.statuses[list[i][this.fields['status']]]
         }));        
       }
       
@@ -234,7 +234,7 @@
         'action': '#',
         'class': this.style.form
       }).append($('<textarea>', {
-        'name': 'amendment',
+        'name': this.fields['amendment'],
         'class': this.style.textarea
       })).append($submitBtn).append($cancelBtn);
       
@@ -257,7 +257,7 @@
       // Render new form
       if (extra) {
         $amendForm.prepend($('<label>', {
-          'for': 'amendment',
+          'for': this.fields['amendment'],
           'html': '<span>' + this.t('Add new text inside') + '</span> ' 
                   + original,
           'class': this.style.label
@@ -327,30 +327,30 @@
         'class': this.style.form
       }).append(
         $('<div>').append($('<label>', {
-          'for': 'amendment',
+          'for': this.fields['amendment'],
           'html': this.t('Amendment'),
           'class': this.style.label
         })).append($('<div>', {
-          'html': extra ? data['amendment'] 
-                  : this.renderTextDiff(original, data['amendment']),
+          'html': extra ? data[this.fields['amendment']] 
+                  : this.renderTextDiff(original, data[this.fields['amendment']]),
           'class': this.style.preview
         }))
       ).append(
         $('<div>').append($('<label>', {
-          'for': 'reason',
+          'for': this.fields['reason'],
           'html': this.t('Reason'),
           'class': this.style.label
         })).append($('<textarea>', {
-          'name': 'reason',
+          'name': this.fields['reason'],
           'class': this.style.textarea
         }))
       ).append(
         $('<div>').append($('<label>', {
-          'for': 'author',
+          'for': this.fields['author'],
           'html': this.t('Name'),
           'class': this.style.label
         })).append($('<input>', {
-          'name': 'author',
+          'name': this.fields['author'],
           'type': 'text',
           'class': this.style.input
         }))
@@ -368,15 +368,16 @@
       var submit = function(event) {
         // Create amendment
         $.extend(data, self.getFormData($confirmForm));
-        data['reference'] = $node.attr(self.attrname);
-        data['extra'] = extra;
-        data['status'] = 'pending';
-        // Alert listeners (data + successCallback)
-        self.notify('jqa-confirm', [data, function() {
+        data[self.fields['reference']] = $node.attr(self.attrname);
+        data[self.fields['extra']] = extra;
+        // Alert listeners (form + data + successCallback)
+        self.notify('jqa-confirm', [$confirmForm, data, function() {
           // Reset
           close();
           // Add amendment
           self.renderAmendments(node, [data]);
+          // Alert listener
+          self.notify('jqa-success');
         }]);
         // Avoid submit
         event.preventDefault();
