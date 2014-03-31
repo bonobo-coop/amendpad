@@ -102,11 +102,11 @@
             $('.warning', $form).removeClass('warning');
             $('.alert-error', $form).remove();
             
-            if (resp.exception && typeof resp.exception.message === 'object') {
-                for (var name in resp.exception.message) {
+            if (resp.errors && typeof resp.errors === 'object') {
+                for (var name in resp.errors) {
                     $('*[name="' + name + '"]').after($('<div>', {
                         class: 'alert-error',
-                        html: resp.exception.message[name]
+                        html: resp.errors[name]
                     })).parent().addClass('control-group warning');
                 }
             } else {

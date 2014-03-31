@@ -264,13 +264,16 @@ $app->error(function (\Exception $e, $code) use ($app) {
     );
     
     if (0 === strpos($app['request']->headers->get('Content-Type'), 'application/json')) {
-        // Try to decode (errors case)
+        // HACK Try to decode (errors case)
         $decoded = json_decode($message);
-        $params['message'] = $decoded ?: $message;
+        if ($decoded) {
+            $params['message'] = $app['translator']->trans('messages.system.detectederrors');
+        }
         // JSON
         return $app->json(array(
             'success'   => false,
             'exception' => $params,
+            'errors' => $decoded ?: array()
         ));
     } else {
         // HTML
