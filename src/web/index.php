@@ -118,6 +118,7 @@ $app->get('/doc/{uuid}', 'draft.controller:publicAction');
 
 // REST API
 $app->post('/api/doc/{uuid}/amendment/', 'api.controller:createAction');
+$app->get('/api/doc/{uuid}/amendment/', 'api.controller:indexAction');
 
 /**
  * Error handler

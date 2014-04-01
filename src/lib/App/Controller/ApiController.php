@@ -8,6 +8,18 @@ use App\Entity\Amendment;
 
 class ApiController extends AbstractController 
 {
+    public function indexAction()
+    {
+        $uuid = $this->_getParam('uuid');
+        
+        return $this->json(array(
+            'success' => true,
+            'data' => $this->_db->find('draft_' . $uuid, array(), array(
+                '_id' => 0,
+            ))
+        ));
+    }
+    
     public function createAction()
     {
         $uuid = $this->_getParam('uuid');
