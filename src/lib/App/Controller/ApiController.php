@@ -30,7 +30,7 @@ class ApiController extends AbstractController
                 'constraints' => array(new Assert\NotBlank())
             ))
             ->add('body', 'textarea', array(
-                'constraints' => array(new Assert\NotBlank())
+                // 'constraints' => array(new Assert\NotNull())
             ))
             ->add('reason', 'textarea', array(
                 'constraints' => array(new Assert\NotBlank())
@@ -52,7 +52,7 @@ class ApiController extends AbstractController
         if ($form->isValid()) {
             // Map data
             $data = $form->getData();
-            $data['addition'] = (boolean)$data['addition'];        
+            $data['addition'] = (boolean)$data['addition'];
             // Build amendment
             $amendment = new Amendment($data);
             $amendment->status = Amendment::STATUS_PENDING;
