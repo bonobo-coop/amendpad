@@ -86,7 +86,7 @@ class DraftController extends AbstractController
         return $this->render('doc.twig', array(
             'draft' => $draft,
             'amendments' => $this->_db->find('draft_' . $uuid, array(), array(
-                '_id' => 0
+                'votes' => 0
             ))
         ));
     }
