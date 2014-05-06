@@ -19,32 +19,19 @@
 
 <!-- ini DomTal tpls -->
 <div id="template" style="display:none">
-    <div class="manager">
-        <div class="clearfix">
-            <div class="btn-group pull-left">
-                <button class="btn current-amendments closed" title="{{ 'page.doc.tooltips.current-amendments' | trans }}">
-                    <span class="icon-comment"></span> <span class="counter">${namendments}</span>
-                </button>
-                <button class="btn add-amendment closed" title="{{ 'page.doc.tooltips.add-amendment' | trans }}">
-                    <span class="icon-pencil"></span>
-                </button>
-            </div>
-            <div class="btn-group pull-right">
-                <button class="btn like" title="{{ 'page.doc.tooltips.like' | trans }}">
-                    <span class="icon-thumbs-up"></span> <span class="counter">${nlikes}</span>
-                </button>
-                <button class="btn dislike" title="{{ 'page.doc.tooltips.dislike' | trans }}">
-                    <span class="icon-thumbs-down"></span> <span class="counter">${ndislikes}</span>
-                </button>
-                <button class="btn doubt" title="{{ 'page.doc.tooltips.doubt' | trans }}">
-                    <span class="icon-question-sign"></span> <span class="counter">${ndoubts}</span>
-                </button>
-            </div>
+    <div class="manager clearfix">
+        <div class="btn-group pull-right">
+            <button class="btn current-amendments closed" title="{{ 'page.doc.tooltips.current-amendments' | trans }}">
+                <span class="icon-comment"></span> <span class="counter">${namendments}</span>
+            </button>
+            <button class="btn add-amendment closed" title="{{ 'page.doc.tooltips.add-amendment' | trans }}">
+                <span class="icon-pencil"></span>
+            </button>
         </div>
     </div>
 </div>
 <div id="template-plus" style="display:none">
-    <span class="btn-group manager" style="display:none">
+    <span class="manager btn-group" style="display:none">
         <button class="btn current-additions closed" title="{{ 'page.doc.tooltips.current-additions' | trans }}">
             <span class="icon-inbox"></span> <span class="counter">${nadditions}</span>
         </button>
@@ -57,6 +44,19 @@
     <div class="alert ${class}">
         <button type="button" class="close" data-dismiss="alert">&times;</button>
         ${content}
+    </div>
+</div>
+<div id="template-likes" style="display:none">
+    <div class="amendment-likes btn-group pull-right">
+        <button class="btn like" title="{{ 'page.doc.tooltips.like' | trans }}">
+            <span class="icon-thumbs-up"></span> <span class="counter">${nlikes}</span>
+        </button>
+        <button class="btn dislike" title="{{ 'page.doc.tooltips.dislike' | trans }}">
+            <span class="icon-thumbs-down"></span> <span class="counter">${ndislikes}</span>
+        </button>
+        <button class="btn doubt" title="{{ 'page.doc.tooltips.doubt' | trans }}">
+            <span class="icon-question-sign"></span> <span class="counter">${ndoubts}</span>
+        </button>
     </div>
 </div>
 <!-- end DomTal tpls -->
@@ -122,6 +122,42 @@
                 }
             }
         });
+    }).on('jqa-rendered', function(event, elems){
+        // After rendering amendments...
+        for (var i in elems) {
+            $('.amendment-date', elems[i]).html(function(){
+                var timestamp = $(this).text(),
+                    date = new Date(timestamp * 1000),
+                    months = [
+                        "{{ 'page.doc.months.jan' | trans }}",
+                        "{{ 'page.doc.months.feb' | trans }}",
+                        "{{ 'page.doc.months.mar' | trans }}",
+                        "{{ 'page.doc.months.apr' | trans }}",
+                        "{{ 'page.doc.months.may' | trans }}",
+                        "{{ 'page.doc.months.jun' | trans }}",
+                        "{{ 'page.doc.months.jul' | trans }}",
+                        "{{ 'page.doc.months.aug' | trans }}",
+                        "{{ 'page.doc.months.sep' | trans }}",
+                        "{{ 'page.doc.months.oct' | trans }}",
+                        "{{ 'page.doc.months.nov' | trans }}",
+                        "{{ 'page.doc.months.dec' | trans }}"
+                    ];
+                return date.getDate() + ' ' + months[date.getMonth()] + ' ' + date.getFullYear() 
+                    + ' ' + (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) 
+                    + ':' + (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes());
+            });
+            $('.amendment-status', elems[i]).replaceWith(function(){
+                var self = this;
+                // Like buttons template
+                tpl.load('#template-likes');
+                tpl.set({
+                    nlikes: 0,
+                    ndislikes: 0,
+                    ndoubts: 0
+                });
+                return tpl.run();
+            });
+        }
     }).hide();
     
     $('body').after($fake);
@@ -166,10 +202,7 @@
             // Amend template
             tpl.load('#template');
             tpl.set({
-                namendments: 0,
-                nlikes: 0,
-                ndislikes: 0,
-                ndoubts: 0
+                namendments: 0
             });
             $(elem).after(tpl.run());
             // Add separation for a better UX
@@ -212,12 +245,14 @@
             attrname: 'id',
             container: $container,
             fields: {
+                id: '_id',
                 reference: 'tid',
                 amendment: 'body',
                 extra: 'addition',
                 reason: 'reason',
                 author: 'uid',
-                status: 'status'
+                status: 'status',
+                date: 'created'
             },
             listeners: [
                 $fake,
@@ -263,6 +298,8 @@
                         return "{{ 'page.doc.jqa.anonymous' | trans }}";
                     case 'Add new text inside':
                         return "{{ 'page.doc.jqa.add' | trans }}";
+                    case 'on':
+                        return "{{ 'page.doc.jqa.on' | trans }}";
                     default:
                         return text;
                 }

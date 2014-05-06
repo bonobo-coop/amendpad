@@ -33,12 +33,14 @@
     'auto': false,
     'container': null,
     'fields': {
+      'id': 'id',               // amendment unique id
       'reference': 'reference', // original text id
       'amendment': 'amendment', // modified or new text
       'extra': 'extra',         // new text flag
       'reason': 'reason',       // justification
       'author': 'author',       // username
-      'status': 'status'        // approval status
+      'status': 'status',       // approval status
+      'date': 'date'            // creation date
     },
     'listeners': [],
     'style': {
@@ -131,6 +133,7 @@
         .on('jqa-render', function(event, dom) {
           $container.append(dom);
           // Alert listeners
+          self.notify('jqa-rendered', [dom]);
           self.notify('jqa-counter', [$container.children().length]);
         });
         
@@ -165,7 +168,7 @@
           'html': list[i][this.fields['extra']] 
             ? '<span class="plus">[+]</span> ' + list[i][this.fields['amendment']] 
             : this.renderTextDiff(original, list[i][this.fields['amendment']] ? list[i][this.fields['amendment']] : '')
-        }));
+        })).data('id', list[i][this.fields['id']]);
         
         if (!this.isEmpty(list[i][this.fields['reason']])) {
           $ul.append($('<li>', {
@@ -176,10 +179,19 @@
         }
         
         $ul.append($('<li>', {
-          'class': 'amendment-author',
-          'html': '<span>' + this.t('sent by') + ' </span> ' + 
-                    (this.isEmpty(list[i][this.fields['author']]) ? this.t('anonymous') 
-                      : list[i][this.fields['author']])
+          'class': 'amendment-creation',
+          'html':   '<span>' + this.t('sent by') + '</span> ' + 
+                    '<span class="amendment-author">' + 
+                        (this.isEmpty(list[i][this.fields['author']]) 
+                            ? this.t('anonymous') 
+                            : list[i][this.fields['author']]) + 
+                    ' </span>' +
+                    (this.isEmpty(list[i][this.fields['date']]) 
+                        ? ''
+                        :   '<span>' + this.t('on') + '</span> ' + 
+                            '<span class="amendment-date">' + 
+                                list[i][this.fields['date']] + 
+                            '</span>')
         })).append($('<li>', {
           'class': 'amendment-status amendment-status-' + list[i][this.fields['status']],
           'html': this.statuses[list[i][this.fields['status']]]
