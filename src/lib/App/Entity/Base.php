@@ -40,7 +40,8 @@ abstract class Base
     public function exportData()
     {
         return array_filter((array) $this, function($item) {
-            return is_array($item) || is_object($item) || strlen($item);
+            return is_array($item) || is_object($item) 
+                || is_numeric($item) || strlen($item);
         });
     }
 }

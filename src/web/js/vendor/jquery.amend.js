@@ -168,7 +168,7 @@
           'html': list[i][this.fields['extra']] 
             ? '<span class="plus">[+]</span> ' + list[i][this.fields['amendment']] 
             : this.renderTextDiff(original, list[i][this.fields['amendment']] ? list[i][this.fields['amendment']] : '')
-        })).data('id', list[i][this.fields['id']]);
+        })).data('json', list[i]);
         
         if (!this.isEmpty(list[i][this.fields['reason']])) {
           $ul.append($('<li>', {

@@ -46,8 +46,8 @@
         ${content}
     </div>
 </div>
-<div id="template-likes" style="display:none">
-    <div class="amendment-likes btn-group pull-right">
+<div id="template-votes" style="display:none">
+    <div class="amendment-votes btn-group pull-right">
         <button class="btn like" title="{{ 'page.doc.tooltips.like' | trans }}">
             <span class="icon-thumbs-up"></span> <span class="counter">${nlikes}</span>
         </button>
@@ -76,6 +76,7 @@
     /** 
      * Initialize REST client
      * Nested resources: /api/doc/{id}/amendment
+     *                   /api/doc/{id}/amendment/{id}/vote
      */
     var client = new $.RestClient('/api/', {
         ajax: {
@@ -86,6 +87,7 @@
     });
     client.add('doc');
     client.doc.add('amendment');
+    client.doc.amendment.add('vote');
     // Initalize listener
     var $fake = $('<div>', {
         'id': 'fake'
@@ -123,40 +125,100 @@
             }
         });
     }).on('jqa-rendered', function(event, elems){
+        // Vote options
+        var LIKE = {{ constant('App\\Entity\\Vote::OPTION_LIKE') }},
+            DISLIKE = {{ constant('App\\Entity\\Vote::OPTION_DISLIKE') }},
+            DOUBT = {{ constant('App\\Entity\\Vote::OPTION_DOUBT') }};        
         // After rendering amendments...
         for (var i in elems) {
-            $('.amendment-date', elems[i]).html(function(){
-                var timestamp = $(this).text(),
-                    date = new Date(timestamp * 1000),
-                    months = [
-                        "{{ 'page.doc.months.jan' | trans }}",
-                        "{{ 'page.doc.months.feb' | trans }}",
-                        "{{ 'page.doc.months.mar' | trans }}",
-                        "{{ 'page.doc.months.apr' | trans }}",
-                        "{{ 'page.doc.months.may' | trans }}",
-                        "{{ 'page.doc.months.jun' | trans }}",
-                        "{{ 'page.doc.months.jul' | trans }}",
-                        "{{ 'page.doc.months.aug' | trans }}",
-                        "{{ 'page.doc.months.sep' | trans }}",
-                        "{{ 'page.doc.months.oct' | trans }}",
-                        "{{ 'page.doc.months.nov' | trans }}",
-                        "{{ 'page.doc.months.dec' | trans }}"
-                    ];
-                return date.getDate() + ' ' + months[date.getMonth()] + ' ' + date.getFullYear() 
-                    + ' ' + (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) 
-                    + ':' + (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes());
-            });
-            $('.amendment-status', elems[i]).replaceWith(function(){
-                var self = this;
-                // Like buttons template
-                tpl.load('#template-likes');
-                tpl.set({
-                    nlikes: 0,
-                    ndislikes: 0,
-                    ndoubts: 0
+            // Avoid scope issues!
+            (function() {
+                // Get original data
+                var json = $(elems[i]).data('json');
+                // Show date instead of timestamp
+                $('.amendment-date', elems[i]).html(function(){
+                    var timestamp = $(this).text(),
+                        date = new Date(timestamp * 1000),
+                        months = [
+                            "{{ 'page.doc.months.jan' | trans }}",
+                            "{{ 'page.doc.months.feb' | trans }}",
+                            "{{ 'page.doc.months.mar' | trans }}",
+                            "{{ 'page.doc.months.apr' | trans }}",
+                            "{{ 'page.doc.months.may' | trans }}",
+                            "{{ 'page.doc.months.jun' | trans }}",
+                            "{{ 'page.doc.months.jul' | trans }}",
+                            "{{ 'page.doc.months.aug' | trans }}",
+                            "{{ 'page.doc.months.sep' | trans }}",
+                            "{{ 'page.doc.months.oct' | trans }}",
+                            "{{ 'page.doc.months.nov' | trans }}",
+                            "{{ 'page.doc.months.dec' | trans }}"
+                        ];
+                    return date.getDate() + ' ' + months[date.getMonth()] + ' ' + date.getFullYear() 
+                        + ' ' + (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) 
+                        + ':' + (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes());
                 });
-                return tpl.run();
-            });
+                // Show voting system instead of status
+                $('.amendment-status', elems[i]).replaceWith(function(){
+                    // Like buttons template
+                    tpl.load('#template-votes');
+                    tpl.set({
+                        nlikes: json['votesCounter'] ? json['votesCounter'][LIKE] : 0,
+                        ndislikes: json['votesCounter'] ? json['votesCounter'][DISLIKE] : 0,
+                        ndoubts: json['votesCounter'] ? json['votesCounter'][DOUBT] : 0
+                    });
+                    return tpl.run();
+                });
+                // Manage voting system buttons
+                var $buttonLike = $('.amendment-votes .like', elems[i]),
+                    $buttonDislike = $('.amendment-votes .dislike', elems[i]),
+                    $buttonDoubt = $('.amendment-votes .doubt', elems[i]);
+                var voteCb = function(option){
+                    // Prepare request
+                    var data = {};
+                    // Add CSRF token
+                    data._token = '{{ csrf_token }}';
+                    // Add vote option
+                    data['option'] = option;
+                    // Call API
+                    client.doc.amendment.vote.create('{{ draft.publicKey }}', json['_id'], data).always(function(resp){
+                        // First argument data|jqXHR
+                        resp = resp.responseJSON ? resp.responseJSON : resp;
+                        console.log(resp);
+                        // Error management 
+                        if (resp.errors && typeof resp.errors === 'object') {
+                            alert("{{ 'messages.system.globalerror' | trans }}");
+                        } else {
+                            $buttonLike.trigger('inc', [option]).trigger('dec', [resp.lastVote]);
+                            $buttonDislike.trigger('inc', [option]).trigger('dec', [resp.lastVote]);
+                            $buttonDoubt.trigger('inc', [option]).trigger('dec', [resp.lastVote]);
+                        }
+                    });
+                };
+                var incCb = function(option, currentVote){
+                    if (option === currentVote) {
+                        var $counter = $('.counter', this);
+                        $counter.html(parseInt($counter.text())+1);
+                    }
+                };
+                var decCb = function(option, lastVote){
+                    if (option === lastVote) {
+                        var $counter = $('.counter', this);
+                        $counter.html(parseInt($counter.text())-1);
+                    }
+                };
+                $buttonLike
+                    .click(function(){ voteCb(LIKE); })
+                    .on('inc', function(e, vote){ incCb.call(this, LIKE, vote); })
+                    .on('dec', function(e, vote){ decCb.call(this, LIKE, vote); });
+                $buttonDislike
+                    .click(function(){ voteCb(DISLIKE); })
+                    .on('inc', function(e, vote){ incCb.call(this, DISLIKE, vote); })
+                    .on('dec', function(e, vote){ decCb.call(this, DISLIKE, vote); });
+                $buttonDoubt
+                    .click(function(){ voteCb(DOUBT); })
+                    .on('inc', function(e, vote){ incCb.call(this, DOUBT, vote); })
+                    .on('dec', function(e, vote){ decCb.call(this, DOUBT, vote); });
+            })();
         }
     }).hide();
     

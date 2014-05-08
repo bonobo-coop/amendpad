@@ -123,7 +123,7 @@ class ApiController extends AbstractController
                     new Assert\Ip()
                 )
             ))
-            ->add('option', 'text', array(
+            ->add('option', 'number', array(
                 'constraints' => array(
                     new Assert\NotBlank(), 
                     new Assert\Choice(Vote::getAllowedOptions())
