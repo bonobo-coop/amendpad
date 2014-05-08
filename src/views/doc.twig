@@ -117,10 +117,12 @@
                         ? '{{ 'messages.node.created' | trans }} :)' 
                         : resp.exception.message
                 });
-                $form.after(tpl.run());
+                var $msg = $('<div>').html(tpl.run());
+                $form.after($msg);
+                $msg.fadeOut(4800);
                 // Call success callback
                 if (resp.success) {
-                    successCb();
+                    successCb({_id: resp._id});
                 }
             }
         });

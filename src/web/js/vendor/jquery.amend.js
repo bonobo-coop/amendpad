@@ -385,10 +385,11 @@
         data[self.fields['reference']] = $node.attr(self.attrname);
         data[self.fields['extra']] = extra;
         // Alert listeners (form + data + successCallback)
-        self.notify('jqa-confirm', [$confirmForm, data, function() {
+        self.notify('jqa-confirm', [$confirmForm, data, function(extra) {
           // Reset
           close();
           // Add amendment
+          $.extend(data, extra);
           self.renderAmendments(node, [data]);
           // Alert listener
           self.notify('jqa-success');

@@ -75,9 +75,11 @@ class ApiController extends AbstractController
             $amendment = new Amendment($data);
             $amendment->status = Amendment::STATUS_PENDING;
             // Save amendment
-            if ($this->_db->create('draft_' . $uuid, $amendment->exportData())) {
+            $_id = $this->_db->create('draft_' . $uuid, $amendment->exportData());
+            if ($_id) {
                 return $this->json(array(
-                    'success' => true
+                    'success' => true,
+                    '_id' => $_id
                 ));
             }
         } else {

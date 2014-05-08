@@ -73,9 +73,12 @@ class MongoWrapper
             $c->ensureIndex($indexes, array('unique' => $unique));
         }
         $success = $c->insert($document);
+        if ($success) {
+            $document = $this->_mapDocument($document);
+        }
         $this->_closeConnection();
         
-        return $success;
+        return $success ? $document['_id'] : FALSE;
     }
     
     /**
