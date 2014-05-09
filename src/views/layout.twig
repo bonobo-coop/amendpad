@@ -13,7 +13,7 @@
     <body>
         <div class="container-narrow">
             <div class="masthead">
-                <div class="btn-group pull-right">
+                <div id="language" class="btn-group pull-right">
                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                         {{ locales[locale] }} <span class="caret"></span>
                     </button>
@@ -25,7 +25,7 @@
                         {% endfor %}
                     </ul>
                 </div>
-                <h1 class="muted">AmendPad</h1>
+                <h1>AmendPad <small>{{ block('title') }}</small></h1>
             </div>
             <hr>
             <div id="content">
@@ -43,8 +43,8 @@
                 </div>
             </div>
         </div><!-- /container -->
-        <script src="http://code.jquery.com/jquery.js"></script>
-        <script src="/themes/bootstrap/js/bootstrap.min.js"></script>        
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+        <script type="text/javascript" src="/themes/bootstrap/js/bootstrap.min.js"></script>        
         {% block javascript %}
         {% endblock %}
     </body>

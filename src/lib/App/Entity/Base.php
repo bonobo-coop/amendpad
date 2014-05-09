@@ -15,6 +15,7 @@ abstract class Base
     
     public function __construct($data = array())
     {
+        $this->status = 1; // Published by default
         $this->created = $this->updated = time();
         $this->importData($data, FALSE);
     }
@@ -38,6 +39,9 @@ abstract class Base
     
     public function exportData()
     {
-        return array_filter((array) $this, 'strlen');
+        return array_filter((array) $this, function($item) {
+            return is_array($item) || is_object($item) 
+                || is_numeric($item) || strlen($item);
+        });
     }
 }

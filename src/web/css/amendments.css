@@ -1,0 +1,77 @@
+/* Container */
+
+.amendment {
+    background: #ccc;
+    margin: 0 0 2px 0;
+    padding: 10px;
+    list-style: none;
+    overflow: hidden;
+    zoom: 1;
+    clear: right;
+}
+    .amendment li {
+        padding: 4px;
+    }
+    .amendment-text,
+    .amendment-reason {
+        background: #fff;
+        margin-bottom: 2px;
+    }
+        .amendment-text .plus,
+        .amendment-reason span,
+        .amendment-author,
+        .amendment-status {
+            font-weight: bold;
+        }
+    .amendment-creation,
+    .amendment-status {
+        margin: 8px 0 0 0
+    }
+    .amendment-creation {
+        float: left;
+    }
+        .amendment-date {
+            font-style: italic;
+        }
+    .amendment-status {
+        float: right;
+        font-weight: bold;
+    }
+    .amendment-status.pending {
+        color: #D69302;
+    }
+    .amendment-status.approved {
+        color: #279100;
+    }
+    .amendment-status.rejected {
+        color: #C9002F;
+    }
+    .amendment-votes {
+        margin-top: 6px;
+    }
+    
+/* Forms */
+
+.amend-form {
+    background: #ccc;
+    padding: 8px;
+}
+    .amend-form .alert-error {
+        background: none;
+        border: none;    
+    }
+.amend-label span {
+    font-weight: bold;
+}
+.amend-textarea,
+.amend-input,
+.amend-form .uneditable-input {
+    width: 98.5%;
+}
+.amend-delete {
+    float: right;
+}
+.amend-form .uneditable-input {
+    height: auto;
+    white-space: normal;
+}
