@@ -19,32 +19,19 @@
 
 <!-- ini DomTal tpls -->
 <div id="template" style="display:none">
-    <div class="manager">
-        <div class="clearfix">
-            <div class="btn-group pull-left">
-                <button class="btn current-amendments closed" title="{{ 'page.doc.tooltips.current-amendments' | trans }}">
-                    <span class="icon-comment"></span> <span class="counter">${namendments}</span>
-                </button>
-                <button class="btn add-amendment closed" title="{{ 'page.doc.tooltips.add-amendment' | trans }}">
-                    <span class="icon-pencil"></span>
-                </button>
-            </div>
-            <div class="btn-group pull-right">
-                <button class="btn like" title="{{ 'page.doc.tooltips.like' | trans }}">
-                    <span class="icon-thumbs-up"></span> <span class="counter">${nlikes}</span>
-                </button>
-                <button class="btn dislike" title="{{ 'page.doc.tooltips.dislike' | trans }}">
-                    <span class="icon-thumbs-down"></span> <span class="counter">${ndislikes}</span>
-                </button>
-                <button class="btn doubt" title="{{ 'page.doc.tooltips.doubt' | trans }}">
-                    <span class="icon-question-sign"></span> <span class="counter">${ndoubts}</span>
-                </button>
-            </div>
+    <div class="manager clearfix">
+        <div class="btn-group pull-right">
+            <button class="btn current-amendments closed" title="{{ 'page.doc.tooltips.current-amendments' | trans }}">
+                <span class="icon-comment"></span> <span class="counter">${namendments}</span>
+            </button>
+            <button class="btn add-amendment closed" title="{{ 'page.doc.tooltips.add-amendment' | trans }}">
+                <span class="icon-pencil"></span>
+            </button>
         </div>
     </div>
 </div>
 <div id="template-plus" style="display:none">
-    <span class="btn-group manager" style="display:none">
+    <span class="manager btn-group" style="display:none">
         <button class="btn current-additions closed" title="{{ 'page.doc.tooltips.current-additions' | trans }}">
             <span class="icon-inbox"></span> <span class="counter">${nadditions}</span>
         </button>
@@ -52,6 +39,25 @@
             <span class="icon-plus"></span>
         </button>
     </span>
+</div>
+<div id="template-alert" style="display:none">
+    <div class="alert ${class}">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        ${content}
+    </div>
+</div>
+<div id="template-votes" style="display:none">
+    <div class="amendment-votes btn-group pull-right">
+        <button class="btn like" title="{{ 'page.doc.tooltips.like' | trans }}">
+            <span class="icon-thumbs-up"></span> <span class="counter">${nlikes}</span>
+        </button>
+        <button class="btn dislike" title="{{ 'page.doc.tooltips.dislike' | trans }}">
+            <span class="icon-thumbs-down"></span> <span class="counter">${ndislikes}</span>
+        </button>
+        <button class="btn doubt" title="{{ 'page.doc.tooltips.doubt' | trans }}">
+            <span class="icon-question-sign"></span> <span class="counter">${ndoubts}</span>
+        </button>
+    </div>
 </div>
 <!-- end DomTal tpls -->
 
@@ -61,20 +67,168 @@
 <script type="text/javascript" src="/js/vendor/DomTal.js"></script>
 <script type="text/javascript" src="/js/vendor/diff_match_patch.js"></script>
 <script type="text/javascript" src="/js/vendor/jquery.amend.js"></script>
+<script type="text/javascript" src="/js/vendor/jquery.rest.js"></script>
 <script type="text/javascript">
-    // Initalize listeners
+    /**
+     * Template engine
+     */
+    var tpl = new DomTal();
+    /** 
+     * Initialize REST client
+     * Nested resources: /api/doc/{id}/amendment
+     *                   /api/doc/{id}/amendment/{id}/vote
+     */
+    var client = new $.RestClient('/api/', {
+        ajax: {
+            contentType: 'application/json; charset=UTF-8'
+        },
+        cache: 0,
+        stringifyData: true
+    });
+    client.add('doc');
+    client.doc.add('amendment');
+    client.doc.amendment.add('vote');
+    // Initalize listener
     var $fake = $('<div>', {
         'id': 'fake'
-    }).on('jqa-confirm', function(event, data, callback) {
-        alert('Success creating amendment at ' + data['reference']);
-        callback(true);
+    }).on('jqa-confirm', function(event, $form, data, successCb) {
+        // Add CSRF token
+        data._token = '{{ csrf_token }}';
+        // Call API
+        client.doc.amendment.create('{{ draft.publicKey }}', data).always(function(resp){
+            // First argument data|jqXHR
+            resp = resp.responseJSON ? resp.responseJSON : resp;
+            // Error management
+            $('.warning', $form).removeClass('warning');
+            $('.alert-error', $form).remove();
+            
+            if (resp.errors && typeof resp.errors === 'object') {
+                for (var name in resp.errors) {
+                    $('*[name="' + name + '"]').after($('<div>', {
+                        class: 'alert-error',
+                        html: resp.errors[name]
+                    })).parent().addClass('control-group warning');
+                }
+            } else {
+                tpl.load('#template-alert');
+                tpl.set({
+                    class: resp.success ? 'alert-success' : 'alert-error',
+                    content: resp.success 
+                        ? '{{ 'messages.node.created' | trans }} :)' 
+                        : resp.exception.message
+                });
+                var $msg = $('<div>').html(tpl.run());
+                $form.after($msg);
+                $msg.fadeOut(4800);
+                // Call success callback
+                if (resp.success) {
+                    successCb({_id: resp._id});
+                }
+            }
+        });
+    }).on('jqa-rendered', function(event, elems){
+        // Vote options
+        var LIKE = {{ constant('App\\Entity\\Vote::OPTION_LIKE') }},
+            DISLIKE = {{ constant('App\\Entity\\Vote::OPTION_DISLIKE') }},
+            DOUBT = {{ constant('App\\Entity\\Vote::OPTION_DOUBT') }};        
+        // After rendering amendments...
+        for (var i in elems) {
+            // Avoid scope issues!
+            (function() {
+                // Get original data
+                var json = $(elems[i]).data('json');
+                // Show date instead of timestamp
+                $('.amendment-date', elems[i]).html(function(){
+                    var timestamp = $(this).text(),
+                        date = new Date(timestamp * 1000),
+                        months = [
+                            "{{ 'page.doc.months.jan' | trans }}",
+                            "{{ 'page.doc.months.feb' | trans }}",
+                            "{{ 'page.doc.months.mar' | trans }}",
+                            "{{ 'page.doc.months.apr' | trans }}",
+                            "{{ 'page.doc.months.may' | trans }}",
+                            "{{ 'page.doc.months.jun' | trans }}",
+                            "{{ 'page.doc.months.jul' | trans }}",
+                            "{{ 'page.doc.months.aug' | trans }}",
+                            "{{ 'page.doc.months.sep' | trans }}",
+                            "{{ 'page.doc.months.oct' | trans }}",
+                            "{{ 'page.doc.months.nov' | trans }}",
+                            "{{ 'page.doc.months.dec' | trans }}"
+                        ];
+                    return date.getDate() + ' ' + months[date.getMonth()] + ' ' + date.getFullYear() 
+                        + ' ' + (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) 
+                        + ':' + (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes());
+                });
+                // Show voting system instead of status
+                $('.amendment-status', elems[i]).replaceWith(function(){
+                    // Like buttons template
+                    tpl.load('#template-votes');
+                    tpl.set({
+                        nlikes: json['votesCounter'] ? json['votesCounter'][LIKE] : 0,
+                        ndislikes: json['votesCounter'] ? json['votesCounter'][DISLIKE] : 0,
+                        ndoubts: json['votesCounter'] ? json['votesCounter'][DOUBT] : 0
+                    });
+                    return tpl.run();
+                });
+                // Manage voting system buttons
+                var $buttonLike = $('.amendment-votes .like', elems[i]),
+                    $buttonDislike = $('.amendment-votes .dislike', elems[i]),
+                    $buttonDoubt = $('.amendment-votes .doubt', elems[i]);
+                var voteCb = function(option){
+                    // Prepare request
+                    var data = {};
+                    // Add CSRF token
+                    data._token = '{{ csrf_token }}';
+                    // Add vote option
+                    data['option'] = option;
+                    // Call API
+                    client.doc.amendment.vote.create('{{ draft.publicKey }}', json['_id'], data).always(function(resp){
+                        // First argument data|jqXHR
+                        resp = resp.responseJSON ? resp.responseJSON : resp;
+                        console.log(resp);
+                        // Error management 
+                        if (resp.errors && typeof resp.errors === 'object') {
+                            alert("{{ 'messages.system.globalerror' | trans }}");
+                        } else {
+                            $buttonLike.trigger('inc', [option]).trigger('dec', [resp.lastVote]);
+                            $buttonDislike.trigger('inc', [option]).trigger('dec', [resp.lastVote]);
+                            $buttonDoubt.trigger('inc', [option]).trigger('dec', [resp.lastVote]);
+                        }
+                    });
+                };
+                var incCb = function(option, currentVote){
+                    if (option === currentVote) {
+                        var $counter = $('.counter', this);
+                        $counter.html(parseInt($counter.text())+1);
+                    }
+                };
+                var decCb = function(option, lastVote){
+                    if (option === lastVote) {
+                        var $counter = $('.counter', this);
+                        $counter.html(parseInt($counter.text())-1);
+                    }
+                };
+                $buttonLike
+                    .click(function(){ voteCb(LIKE); })
+                    .on('inc', function(e, vote){ incCb.call(this, LIKE, vote); })
+                    .on('dec', function(e, vote){ decCb.call(this, LIKE, vote); });
+                $buttonDislike
+                    .click(function(){ voteCb(DISLIKE); })
+                    .on('inc', function(e, vote){ incCb.call(this, DISLIKE, vote); })
+                    .on('dec', function(e, vote){ decCb.call(this, DISLIKE, vote); });
+                $buttonDoubt
+                    .click(function(){ voteCb(DOUBT); })
+                    .on('inc', function(e, vote){ incCb.call(this, DOUBT, vote); })
+                    .on('dec', function(e, vote){ decCb.call(this, DOUBT, vote); });
+            })();
+        }
     }).hide();
     
     $('body').after($fake);
-        
-    // Add amendments management
-    var tpl = new DomTal();
     
+    /** 
+     * Amendments UX management
+     */    
     $(':header,p,ol,ul', '.draft').each(function(index, elem){        
         
         // Build custom container
@@ -112,10 +266,7 @@
             // Amend template
             tpl.load('#template');
             tpl.set({
-                namendments: 0,
-                nlikes: 0,
-                ndislikes: 0,
-                ndoubts: 0
+                namendments: 0
             });
             $(elem).after(tpl.run());
             // Add separation for a better UX
@@ -148,7 +299,7 @@
                 // Avoid follow            
                 event.preventDefault();
                 return false;
-            }).on('jqa-cancel jqa-confirm', function(){
+            }).on('jqa-success jqa-cancel', function(){
                 $(this).toggleClass('opened').toggleClass('closed');
                 $container.show();
             });
@@ -157,6 +308,16 @@
         $(elem).amend({
             attrname: 'id',
             container: $container,
+            fields: {
+                id: '_id',
+                reference: 'tid',
+                amendment: 'body',
+                extra: 'addition',
+                reason: 'reason',
+                author: 'uid',
+                status: 'status',
+                date: 'created'
+            },
             listeners: [
                 $fake,
                 $showLink,
@@ -173,13 +334,11 @@
                   'cancel':   'btn-link',
                   'delete':   'btn-danger amend-delete'
                 }
-            },            
+            },
             statuses: {
-/*
-                'pending':  "{{ 'page.doc.jqa.status.pending' | trans }}",
-                'approved': "{{ 'page.doc.jqa.status.approved' | trans }}",
-                'rejected': "{{ 'page.doc.jqa.status.rejected' | trans }}",
-*/
+                '{{ constant('App\\Entity\\Amendment::STATUS_PENDING') }}': "{{ 'page.doc.jqa.status.pending' | trans }}",
+                '{{ constant('App\\Entity\\Amendment::STATUS_APPROVED') }}': "{{ 'page.doc.jqa.status.approved' | trans }}",
+                '{{ constant('App\\Entity\\Amendment::STATUS_REJECTED') }}': "{{ 'page.doc.jqa.status.rejected' | trans }}"
             },
             t: function(text) {        
                 switch(text) {
@@ -203,11 +362,13 @@
                         return "{{ 'page.doc.jqa.anonymous' | trans }}";
                     case 'Add new text inside':
                         return "{{ 'page.doc.jqa.add' | trans }}";
+                    case 'on':
+                        return "{{ 'page.doc.jqa.on' | trans }}";
                     default:
                         return text;
                 }
             }
-        });
+        }, {{ amendments | json_encode(constant('JSON_PRETTY_PRINT')) | raw }});
     });
     
     // Add tooltips to template

@@ -23,15 +23,15 @@
         .amendment-status {
             font-weight: bold;
         }
-    .amendment-author,
+    .amendment-creation,
     .amendment-status {
         margin: 8px 0 0 0
     }
-    .amendment-author {
+    .amendment-creation {
         float: left;
     }
-        .amendment-author span {
-            font-weight: normal;
+        .amendment-date {
+            font-style: italic;
         }
     .amendment-status {
         float: right;
@@ -46,6 +46,9 @@
     .amendment-status.rejected {
         color: #C9002F;
     }
+    .amendment-votes {
+        margin-top: 6px;
+    }
     
 /* Forms */
 
@@ -53,6 +56,10 @@
     background: #ccc;
     padding: 8px;
 }
+    .amend-form .alert-error {
+        background: none;
+        border: none;    
+    }
 .amend-label span {
     font-weight: bold;
 }

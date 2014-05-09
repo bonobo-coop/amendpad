@@ -16,10 +16,14 @@ $app->register(new Silex\Provider\MonologServiceProvider(), array(
     'twig.path' => __DIR__ . '/../views',
 ))->register(new Silex\Provider\SessionServiceProvider(
     // no config
-))->register(new Silex\Provider\FormServiceProvider(), array(
-    'form.secret' => md5($app['session']->getId())
+))->register(new Silex\Provider\ValidatorServiceProvider(
+    // no config
 ))->register(new Silex\Provider\TranslationServiceProvider(), array(
     'locale_fallbacks' => array('en', 'es', 'ca'), // Default
+))->register(new Silex\Provider\FormServiceProvider(), array(
+    'form.secret' => md5($app['session']->getId())
+))->register(new Silex\Provider\ServiceControllerServiceProvider(
+    // no config
 ));
 
 // Multilanguage (session dependency)
@@ -39,14 +43,26 @@ $app['translator'] = $app->share($app->extend('translator', function($translator
     return $translator;
 }));
 
-$app['twig'] = $app->share($app->extend('twig', function($twig) use ($locales) {
+// Twig environment
+
+$app['twig'] = $app->share($app->extend('twig', function($twig) use ($app, $locales) {
     $twig->addGlobal('locale', 'en'); // Default
     $twig->addGlobal('locales', $locales);
     $twig->addGlobal('host', $_SERVER['SERVER_NAME']);
+    $twig->addGlobal('csrf_token', $app['form.csrf_provider']->generateCsrfToken('form'));
     return $twig;
 }));
 
 $app->before(function () use ($app, $locales) {
+
+    // Allow JSON content type
+    
+    if (0 === strpos($app['request']->headers->get('Content-Type'), 'application/json')) {
+        $data = json_decode($app['request']->getContent(), true);
+        $app['request']->request->replace(is_array($data) ? $data : array());
+    }
+    
+    // Set user language!
     
     $locale = $app['request']->get('lang');
     
@@ -71,102 +87,39 @@ $app->before(function () use ($app, $locales) {
 });
 
 /**
- * Dependency injector
+ * Controllers
  */
+
 $db = new App\Db\MongoWrapper('localhost:27017', 'amendpad');
 
+$app['index.controller'] = $app->share(function() use ($app, $db) {
+    return new App\Controller\IndexController($app, $db);
+});
+
+$app['draft.controller'] = $app->share(function() use ($app, $db) {
+    return new App\Controller\DraftController($app, $db);
+});
+
+$app['api.controller'] = $app->share(function() use ($app, $db) {
+    return new App\Controller\ApiController($app, $db);
+});
+
 /**
- * Router + Controller
+ * Router
  */
-$app->get('/', function () use ($app) {
-    $form = $app['form.factory']->createBuilder('form')->getForm();
-    return $app['twig']->render('home.twig', array(
-        'form'  => $form->createView()
-    ));
-});
 
-$app->post('/draft', function () use ($app, $db) {
-    // Create case
-    $draft = new App\Entity\Draft();
-    $draft->privateKey = App\Db\UUID::v4();
-    $draft->publicKey  = App\Db\UUID::v4();
-    
-    $success = $db->create('drafts', $draft->exportData(), array(
-        'privateKey', 
-        'publicKey'
-    ));
-    
-    if ($success) {
-        return $app->redirect('/draft/' . $draft->privateKey);        
-    } else {
-        $app->abort(500, 'Unable to create draft.');
-    }
-});
+// Home
+$app->get('/', 'index.controller:indexAction');
 
-$app->match('/draft/{uuid}', function ($uuid) use ($app, $db) {
-    // Load document
-    $draft = new App\Entity\Draft();
-    $uuid = $app->escape($uuid);
-    
-    if (App\Db\UUID::isValid($uuid)) {
-        $doc = $db->findOne('drafts', array('privateKey' => $uuid));
-        if ($doc) {
-            $draft->importData($doc);
-        } else {
-            // Document not found
-            $app->abort(404, $app['translator']->trans('messages.draft.notfound'));
-        }
-    } else {
-        // Wrong UUID
-        $app->abort(404, $app['translator']->trans('messages.draft.notfound'));
-    }
-    
-    // Build form
-    $form = $app['form.factory']->createBuilder('form', $draft->exportData())
-            ->add('title')
-            ->add('body', 'textarea')
-            ->getForm();
+// Draft management
+$app->post('/draft', 'draft.controller:createAction');
+$app->match('/draft/{uuid}', 'draft.controller:privateAction');
+$app->get('/doc/{uuid}', 'draft.controller:publicAction');
 
-    $form->handleRequest($app['request']);
-    
-    if ($form->isValid()) {
-        // Update draft
-        $draft->importData($form->getData());
-        $db->update('drafts', $draft->exportData());
-    }
-    
-    return $app['twig']->render('draft.twig', array(
-        'draft' => $draft,
-        'form'  => $form->createView()
-    ));
-});
-
-$app->match('/doc/{uuid}', function ($uuid) use ($app, $db) {
-    // Load document
-    $draft = new App\Entity\Draft();
-    $uuid = $app->escape($uuid);
-    
-    if (App\Db\UUID::isValid($uuid)) {
-        $doc = $db->findOne('drafts', array('publicKey' => $uuid));
-        if ($doc) {
-            $draft->importData($doc);
-            if ($draft->status !== 1) {
-                // Document not published
-                $app->abort(403, $app['translator']->trans('messages.draft.notpublished'));
-            }
-        } else {
-            // Document not found
-            $app->abort(404, $app['translator']->trans('messages.draft.notfound'));
-        }
-    } else {
-        // Wrong UUID
-        $app->abort(404, $app['translator']->trans('messages.draft.notfound'));
-    }
-    
-    return $app['twig']->render('doc.twig', array(
-        'draft' => $draft
-    ));
-});
+// REST API
+$app->post('/api/doc/{uuid}/amendment/', 'api.controller:createAction');
+$app->get('/api/doc/{uuid}/amendment/', 'api.controller:indexAction');
+$app->post('/api/doc/{uuid}/amendment/{id}/vote/', 'api.controller:voteAction');
 
 /**
  * Error handler
@@ -177,8 +130,9 @@ $app->error(function (\Exception $e, $code) use ($app) {
         $message = $e->getMessage();
     } else {
         switch ($code) {
-            case 403:
-            case 404:
+            case 400: // Validation
+            case 403: // Forbidden
+            case 404: // Not found
                 $message = $e->getMessage();
                 break;
             default:
@@ -186,10 +140,27 @@ $app->error(function (\Exception $e, $code) use ($app) {
         }        
     }
     
-    return $app['twig']->render('error.twig', array(
-        'code'      => $code, 
+    $params = array(
+        'code'      => $code,
         'message'   => $message
-    ));
+    );
+    
+    if (0 === strpos($app['request']->headers->get('Content-Type'), 'application/json')) {
+        // HACK Try to decode (errors case)
+        $decoded = json_decode($message);
+        if ($decoded) {
+            $params['message'] = $app['translator']->trans('messages.system.detectederrors');
+        }
+        // JSON
+        return $app->json(array(
+            'success'   => false,
+            'exception' => $params,
+            'errors' => $decoded ?: array()
+        ));
+    } else {
+        // HTML
+        return $app['twig']->render('error.twig', $params);
+    }
 });
 
 $app->run();
