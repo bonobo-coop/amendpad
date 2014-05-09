@@ -128,11 +128,13 @@ class ObjectChoiceList extends ChoiceList
                 if (null === $group) {
                     $groupedChoices[$i] = $choice;
                 } else {
-                    if (!isset($groupedChoices[$group])) {
-                        $groupedChoices[$group] = array();
+                    $groupName = (string) $group;
+
+                    if (!isset($groupedChoices[$groupName])) {
+                        $groupedChoices[$groupName] = array();
                     }
 
-                    $groupedChoices[$group][$i] = $choice;
+                    $groupedChoices[$groupName][$i] = $choice;
                 }
             }
 
@@ -155,7 +157,7 @@ class ObjectChoiceList extends ChoiceList
      *
      * @param mixed $choice The choice to create a value for
      *
-     * @return integer|string A unique value without character limitations.
+     * @return int|string     A unique value without character limitations.
      */
     protected function createValue($choice)
     {
