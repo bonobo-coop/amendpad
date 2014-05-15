@@ -1,9 +1,5 @@
 {% extends "layout.twig" %}
 
-{% block head %}
-<link href="/css/amendments.css" rel="stylesheet" />
-{% endblock %}
-
 {% block title %}
     {{ 'page.draft.title' | trans }} {{ draft.privateKey | slice(0, 8) }}
 {% endblock %}
@@ -64,10 +60,9 @@
 {% endblock %}
 
 {% block javascript %}
-<script type="text/javascript" src="/js/vendor/DomTal.js"></script>
-<script type="text/javascript" src="/js/vendor/diff_match_patch.js"></script>
-<script type="text/javascript" src="/js/vendor/jquery.amend.js"></script>
-<script type="text/javascript" src="/js/vendor/jquery.rest.js"></script>
+{% javascripts './resources/js/vendor/*.js' filter='?yui_js' output='/assets/js/doc-vendor.js' %}
+    <script src="{{ asset_url }}" type="text/javascript"></script>
+{% endjavascripts %}
 <script type="text/javascript">
     /**
      * Template engine

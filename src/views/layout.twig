@@ -6,7 +6,10 @@
         <!-- Bootstrap -->
         <link href="/themes/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen" />
         <!-- Custom style -->
-        <link href="/css/style.css" rel="stylesheet" />
+        {% stylesheets './resources/css/*.css' filter='?yui_css' output='/assets/css/all.css' %}
+            <link href="{{ asset_url }}" type="text/css" rel="stylesheet" />
+        {% endstylesheets %}
+        <!-- Dynamic section -->
         {% block head %}
         {% endblock %}
     </head>
