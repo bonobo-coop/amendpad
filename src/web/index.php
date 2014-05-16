@@ -6,9 +6,18 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 $app = new Silex\Application(array(
-    'debug'    => false,
-    'compress' => true // set to false after first run (at prod environment)
+    'debug'    => false
 ));
+
+// Assetic system persistence (dump once)
+
+$path = __DIR__ . '/../data/assetic.lock';
+$dump = !file_exists($path);
+if ($dump) {
+    $fp = fopen($path, 'w');
+    fwrite($fp, '1');
+    fclose($fp);            
+}
 
 // Extensions
 
@@ -30,7 +39,7 @@ $app->register(new Silex\Provider\MonologServiceProvider(), array(
     'assetic.path_to_web' => __DIR__,
     'assetic.options'     => array(
         'debug'              => isset($app['debug']) ? $app['debug'] : false,
-        'auto_dump_assets'   => isset($app['compress']) ? $app['compress'] : true
+        'auto_dump_assets'   => $dump
     ),
     'assetic.filters' => $app->protect(function($fm) {
         $fm->set('yui_css', new Assetic\Filter\Yui\CssCompressorFilter(
