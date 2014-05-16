@@ -23,12 +23,12 @@
 {% endblock %}
 
 {% block javascript %}
-<script type="text/javascript" src="/js/vendor/ckeditor/ckeditor.js"></script>
-<script type="text/javascript" src="/js/jquery.uniqid.js"></script>
+<script type="text/javascript" src="/resources/js/vendor/ckeditor/ckeditor.js"></script>
+<script type="text/javascript" src="/resources/js/vendor/jquery.uniqid.js"></script>
 <script type="text/javascript">
     // Rich text editor
     CKEDITOR.replace('form_body', { 
-        customConfig: '/js/ckeditor-config.js',
+        customConfig: '/resources/js/ckeditor-config.js',
         extraAllowedContent: '*[id]'
     });
     // Add unique ids to DOM before save (required to amend text later)

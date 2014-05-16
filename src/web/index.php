@@ -5,8 +5,19 @@
  */
 require_once __DIR__ . '/../vendor/autoload.php';
 
-$app = new Silex\Application();
-$app['debug'] = true;
+$app = new Silex\Application(array(
+    'debug'    => false
+));
+
+// Assetic system persistence (dump once)
+
+$path = __DIR__ . '/../data/assetic.lock';
+$dump = !file_exists($path);
+if ($dump) {
+    $fp = fopen($path, 'w');
+    fwrite($fp, '1');
+    fclose($fp);            
+}
 
 // Extensions
 
@@ -24,6 +35,20 @@ $app->register(new Silex\Provider\MonologServiceProvider(), array(
     'form.secret' => md5($app['session']->getId())
 ))->register(new Silex\Provider\ServiceControllerServiceProvider(
     // no config
+))->register(new SilexAssetic\AsseticServiceProvider(), array(
+    'assetic.path_to_web' => __DIR__,
+    'assetic.options'     => array(
+        'debug'              => isset($app['debug']) ? $app['debug'] : false,
+        'auto_dump_assets'   => $dump
+    ),
+    'assetic.filters' => $app->protect(function($fm) {
+        $fm->set('yui_css', new Assetic\Filter\Yui\CssCompressorFilter(
+            __DIR__ . '/../vendor/bin/yuicompressor.jar'
+        ));
+        $fm->set('yui_js', new Assetic\Filter\Yui\JsCompressorFilter(
+            __DIR__ . '/../vendor/bin/yuicompressor.jar'
+        ));
+    })
 ));
 
 // Multilanguage (session dependency)
@@ -126,6 +151,10 @@ $app->post('/api/doc/{uuid}/amendment/{id}/vote/', 'api.controller:voteAction');
  */
 
 $app->error(function (\Exception $e, $code) use ($app) {
+    // Log error
+    $app['monolog']->addError("[code $code] " . $e->getMessage());
+    
+    // Manage response
     if ($app['debug']) {
         $message = $e->getMessage();
     } else {
