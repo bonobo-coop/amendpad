@@ -7,7 +7,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 $app = new Silex\Application(array(
     'debug'    => false,
-    'compress' => true
+    'compress' => true // set to false after first run (at prod environment)
 ));
 
 // Extensions

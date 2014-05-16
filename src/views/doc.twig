@@ -60,7 +60,7 @@
 {% endblock %}
 
 {% block javascript %}
-{% javascripts './resources/js/vendor/*.js' filter='?yui_js' output='/assets/js/doc-vendor.js' %}
+{% javascripts './resources/js/vendor/*.js' filter='?yui_js' output='/assets/js/*' %}
     <script src="{{ asset_url }}" type="text/javascript"></script>
 {% endjavascripts %}
 <script type="text/javascript">
