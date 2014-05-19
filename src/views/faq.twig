@@ -1,0 +1,17 @@
+{% extends "layout.twig" %}
+
+{% block title %}{{ 'page.faq.title' | trans }}{% endblock %}
+
+{% block content %}
+<div class="faq">
+    <ul>
+    {% for i in questions %}
+        <li>
+            <h3 class="question">{{ "page.faq.q#{i}.q" | trans}}</h3>
+            <div class="answer">{{ "page.faq.q#{i}.a" | trans | raw}}</div>
+        </li>
+    {% endfor %}
+    </ul>
+    
+</div>
+{% endblock %}

@@ -136,6 +136,9 @@ $app['api.controller'] = $app->share(function() use ($app, $db) {
 // Home
 $app->get('/', 'index.controller:indexAction');
 
+// FAQs
+$app->get('/faq', 'index.controller:faqAction');
+
 // Draft management
 $app->post('/draft', 'draft.controller:createAction');
 $app->match('/draft/{uuid}', 'draft.controller:privateAction');
