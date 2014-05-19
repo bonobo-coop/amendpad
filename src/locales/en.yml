@@ -73,6 +73,8 @@ page.faq.q7.q: "Could I request a new feature?"
 page.faq.q7.a: "We don't work for free but we are open to new ideas. Contact us at <a href='mailto:amendpad@bcommunity.es'>amendpad@bcommunity.es</a> and we hear you. If you want to hire us to develop a new feature, the development would be under current open source license."
 page.faq.q8.q: "Who is behind this project?"
 page.faq.q8.a: "<a href='http://bcommunity.es'>Bonobo Community</a>, a worker cooperative specialized on TIC services."
+## Cookies
+page.cookies.title: "Cookies policy"
 ## System
 messages.node.created: "Node succesfully created"
 messages.node.notcreated: "Unable to store node"

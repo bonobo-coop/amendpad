@@ -139,6 +139,9 @@ $app->get('/', 'index.controller:indexAction');
 // FAQs
 $app->get('/faq', 'index.controller:faqAction');
 
+// Cookies policy
+$app->get('/cookies', 'index.controller:cookiesAction');
+
 // Draft management
 $app->post('/draft', 'draft.controller:createAction');
 $app->match('/draft/{uuid}', 'draft.controller:privateAction');
