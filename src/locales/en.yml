@@ -75,6 +75,7 @@ page.faq.q8.q: "Who is behind this project?"
 page.faq.q8.a: "<a href='http://bcommunity.es'>Bonobo Community</a>, a worker cooperative specialized on TIC services."
 ## Cookies
 page.cookies.title: "Cookies policy"
+messages.cookies.info: "We use cookies to improve our service. If you continue browsing, we consider that you accept its use. <a href='/cookies'>More information</a>"
 ## System
 messages.node.created: "Node succesfully created"
 messages.node.notcreated: "Unable to store node"
