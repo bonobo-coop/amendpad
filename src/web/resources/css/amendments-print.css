@@ -1,0 +1,16 @@
+#language, #doc-buttons, .add-point, .add-amendment, #footer .nav {
+    display: none !important;
+}
+.amendments-container {
+    display: block !important;
+}
+.amendment {
+    border: 1px solid #b3b3b3;
+}
+.amendment-votes .hide-text {
+    font-size: 14px;
+    color: #333;
+}
+.amendments-container li {
+    list-style: inside decimal-leading-zero;
+}

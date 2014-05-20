@@ -9,7 +9,7 @@
     zoom: 1;
     clear: right;
 }
-    .amendment li {
+    .amendment > div {
         padding: 4px;
     }
     .amendment-text,

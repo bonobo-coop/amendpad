@@ -113,26 +113,29 @@
     AmendManager.prototype.initHtml = function(elem, data) {
       var self = this,
           $container;
+          
+      // Build list container
+      var $ul = $('<ul>', {
+        'class': 'jqa-container'
+      });
       
       if (this.container) {
         // Use custom container
-        $container = $(this.container);
+        $container = $(this.container).append($ul);
       } else {
-        // Build container
-        $container = $('<div>', {
-          'class': 'jqa-container'
-        }).hide();
-        // Add to DOM
+        // Use list container
+        $container = $ul.hide();
+        // Add it to DOM
         $(elem).after($container);
       }
       
       $(elem).on('jqa-toggle', function() {
         $container.slideToggle();
       }).on('jqa-render', function(event, dom) {
-        $container.append(dom);
+        $ul.append(dom);
         // Alert listeners
         self.notify('jqa-rendered', [dom]);
-        self.notify('jqa-counter', [$container.children().length]);
+        self.notify('jqa-counter', [$ul.children().length]);
       });
         
       // Add amendments to original text
@@ -159,9 +162,9 @@
 
       for (var i in list) {
         
-        var $ul = $('<ul>', {
+        var $div = $('<li>', {
           'class': 'amendment'
-        }).append($('<li>', {
+        }).append($('<div>', {
           'class': 'amendment-text',
           'html': list[i][this.fields['extra']] 
             ? '<span class="plus">[+]</span> ' + list[i][this.fields['amendment']] 
@@ -169,14 +172,14 @@
         })).data('json', list[i]);
         
         if (!this.isEmpty(list[i][this.fields['reason']])) {
-          $ul.append($('<li>', {
+          $div.append($('<div>', {
             'class': 'amendment-reason',
             'html': '<span>' + this.t('Reason') + ':</span> ' + 
                       list[i][this.fields['reason']]
           }));
         }
         
-        $ul.append($('<li>', {
+        $div.append($('<div>', {
           'class': 'amendment-creation',
           'html':   '<span>' + this.t('sent by') + '</span> ' + 
                     '<span class="amendment-author">' + 
@@ -190,12 +193,12 @@
                             '<span class="amendment-date">' + 
                                 list[i][this.fields['date']] + 
                             '</span>')
-        })).append($('<li>', {
+        })).append($('<div>', {
           'class': 'amendment-status amendment-status-' + list[i][this.fields['status']],
           'html': this.statuses[list[i][this.fields['status']]]
         }));
         
-        dom.push($ul);
+        dom.push($div);
       }
       
       // Alert listeners
