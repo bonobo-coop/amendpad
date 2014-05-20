@@ -4,6 +4,11 @@ body {
     background-color: #fcfcfc;
 }
 
+#logo {
+    background: #e6ffe6 url("/resources/img/logo.png") no-repeat right center;
+    padding: 0 18px 4px 4px;
+}
+
 /* Layout */
 
 .container-narrow {

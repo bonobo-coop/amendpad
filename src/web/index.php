@@ -6,7 +6,7 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 $app = new Silex\Application(array(
-    'debug'    => false
+    'debug' => false
 ));
 
 // Assetic system persistence (dump once)
@@ -26,7 +26,7 @@ $app->register(new Silex\Provider\MonologServiceProvider(), array(
 ))->register(new Silex\Provider\TwigServiceProvider(), array(
     'twig.path'    => __DIR__ . '/../views',
     'twig.options' => array(
-        'cache' => __DIR__ . '/../data/cache'
+        'cache' => $app['debug'] ? __DIR__ . '/../data/cache' : null
     ),
 ))->register(new Silex\Provider\SessionServiceProvider(
     // no config
@@ -41,8 +41,8 @@ $app->register(new Silex\Provider\MonologServiceProvider(), array(
 ))->register(new SilexAssetic\AsseticServiceProvider(), array(
     'assetic.path_to_web' => __DIR__,
     'assetic.options'     => array(
-        'debug'              => isset($app['debug']) ? $app['debug'] : false,
-        'auto_dump_assets'   => $dump
+        'debug'            => $app['debug'],
+        'auto_dump_assets' => $app['debug'] ?: $dump
     ),
     'assetic.filters' => $app->protect(function($fm) {
         $fm->set('yui_css', new Assetic\Filter\Yui\CssCompressorFilter(
