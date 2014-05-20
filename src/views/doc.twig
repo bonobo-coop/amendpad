@@ -6,9 +6,14 @@
 
 {% block content %}
 <div class="draft">
-    <button id="manager-button" type="button" class="btn btn-large btn-success pull-right">
-        <span class="icon icon-white icon-bullhorn"></span> <span class="text">{{ 'page.doc.manager.button.on' | trans }}</span>
-    </button>
+    <div id="doc-buttons" class="pull-right">
+        <button id="manager-button" type="button" class="btn btn-large btn-success">
+            <span class="icon icon-white icon-bullhorn"></span> <span class="text">{{ 'page.doc.manager.button.on' | trans }}</span>
+        </button>
+        <button id="print-button" type="button" class="btn btn-large">
+            <span class="icon icon-print"></span>
+        </button>
+    </div>
     <h1 id="root">{{ draft.title|e }}</h1>
     {{ draft.body|raw }}
 </div>
@@ -45,13 +50,13 @@
 <div id="template-votes" style="display:none">
     <div class="amendment-votes btn-group pull-right">
         <button class="btn like" title="{{ 'page.doc.tooltips.like' | trans }}">
-            <span class="icon-thumbs-up"></span> <span class="counter">${nlikes}</span>
+            <span class="icon-thumbs-up hide-text">+</span> <span class="counter">${nlikes}</span>
         </button>
         <button class="btn dislike" title="{{ 'page.doc.tooltips.dislike' | trans }}">
-            <span class="icon-thumbs-down"></span> <span class="counter">${ndislikes}</span>
+            <span class="icon-thumbs-down hide-text">-</span> <span class="counter">${ndislikes}</span>
         </button>
         <button class="btn doubt" title="{{ 'page.doc.tooltips.doubt' | trans }}">
-            <span class="icon-question-sign"></span> <span class="counter">${ndoubts}</span>
+            <span class="icon-question-sign hide-text">?</span> <span class="counter">${ndoubts}</span>
         </button>
     </div>
 </div>
@@ -238,7 +243,7 @@
             addSelector,
             parent;
             
-        if ($(this).is(':header')) {
+        if ($(elem).is(':header')) {
             // Plus template
             tpl.load('#template-plus');
             tpl.set({
@@ -263,7 +268,7 @@
             tpl.set({
                 namendments: 0
             });
-            $(elem).after(tpl.run());
+            $container.before(tpl.run());
             // Add separation for a better UX
             $container.after($('<hr>', {
                 'class': 'manager'
@@ -386,6 +391,12 @@
             .html(enabled ? '{{ 'page.doc.manager.button.on' | trans }}' : '{{ 'page.doc.manager.button.off' | trans }}');
         // Enable points interaction
         enabled ? $('.manager, .amendments-container').hide() : $('.manager').show();
+    });
+    
+    // Print document
+    
+    $('#print-button').click(function(){
+        print();
     });
 </script>
 {% endblock %}
