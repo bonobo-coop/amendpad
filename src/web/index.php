@@ -87,6 +87,14 @@ $app->before(function () use ($app, $locales) {
         $app['request']->request->replace(is_array($data) ? $data : array());
     }
     
+    // Show cookies policy message?
+    
+    $rendered = $app['session']->get('cookies-warning');
+    
+    if (!$rendered) {
+        $app['session']->set('cookies-warning', 1);
+    }
+    
     // Set user language!
     
     $locale = $app['request']->get('lang');
@@ -105,10 +113,11 @@ $app->before(function () use ($app, $locales) {
         return $translator;
     }));
     
-    $app['twig'] = $app->share($app->extend('twig', function($twig, $app) {
+    $app['twig'] = $app->share($app->extend('twig', function($twig, $app) use ($rendered) {
         $twig->addGlobal('locale', $app['locale']);
+        $twig->addGlobal('cookies', !$rendered);
         return $twig;
-    }));
+    }));   
 });
 
 /**
@@ -138,6 +147,9 @@ $app->get('/', 'index.controller:indexAction');
 
 // FAQs
 $app->get('/faq', 'index.controller:faqAction');
+
+// Cookies policy
+$app->get('/cookies', 'index.controller:cookiesAction');
 
 // Draft management
 $app->post('/draft', 'draft.controller:createAction');

@@ -1,0 +1,43 @@
+{% extends "layout.twig" %}
+
+{% block title %}{{ 'page.cookies.title' | trans }}{% endblock %}
+
+{% block content %}
+<div class="cookies">
+{% if locale == 'ca' %}
+    <h2>Sobre l'ús de les galetes o <i>cookies</i> en aquest lloc web</h2>
+    <p>Una galeta (o <i>cookie</i> en anglès) és un petit fragment de codi que els llocs web que visites envien al teu navegador. La seva funció és diversa, per exemple:</p>
+    <ul>
+        <li>Hi ha galetes de preferències, que serveixen per exemple per recordar l'idioma que has triat per navegar.</li>
+        <li>Hi ha galetes de processos, que quan accedeixes a una àrea privada memoritzen algunes dades per a tenir-les en compte el dia que hi tornis com per exemple un carret de la compra a una botiga online.</li>
+        <li>Hi ha galetes de seguretat, que serveixen per impedir que algú altre faci un ús fraudulent de les teves credencials d'accés.</li>
+        <li>També hi ha galetes de publicitat, que enregistren dades relacionades amb les teves cerques a Internet per tal d'adaptar els teus gustos/interessos millor als tipus d'anuncis que apareixen als llocs web visitats.</li>
+        <li>Finalment hi ha galetes d'anàlisi, que envien informació als propietaris del web per entendre millor com interaccionen els visitants. Aquestes galetes recopilen informació estadística sobre l'ús del lloc web sense identificar personalment els visitants.</li>
+    </ul>
+    <p>En tots els casos les <i>cookies</i> aconsegueixen que els llocs web siguin més útils per a tu i nosaltres les considerem com un recurs per a fer que el web sigui més efectiu, útil i pràctic. Sempre respectem la teva intimitat i la de totes les persones que ens visiten, com ha de ser.</p>
+    
+    <h2>Pots canviar d'opinió i eliminar les <i>cookies</i> quan vulguis</h2>
+    <p>Per a consultar i gestionar les <i>cookies</i> instal·lades al teu equip cal que canviïs la configuració del teu navegador. Trobaràs informació detallada en els següents enllaços:</p>
+{% else %}
+    <h2>Sobre el uso de las galletas o <i>cookies</i> en este sitio web</h2>
+    <p>Una galleta (o <i>cookie</i> en inglés) es un pequeño fragmento de código que los sitios web que visitas envían a tu navegador. Su función es diversa, por ejemplo:</p>
+    <ul>
+        <li>Hay galletas de preferencias, que sirven por ejemplo para recordar el idioma que has elegido para navegar.</li>
+        <li>Hay galletas de procesos, que cuando accedes en una área privada memorizan algunos datos para tenerlas en cuenta el día que vuelvas como por ejemplo en un carrito de la compra de una tienda online.</li>
+        <li>Hay galletas de seguridad, que sirven para impedir que alguien haga un uso fraudulento de tus credenciales de acceso.</li>
+        <li>También hay galletas de publicidad, que graban datos relacionados con tus buscas a Internet para adaptar tus gustos/intereses mejor a los tipos de anuncios que aparecen a los sitios web visitados.</li>
+        <li>Finalmente hay galletas de análisis, que envían información a los propietarios del web para entender mejor como interactúan los visitantes. Estas galletas recopilan información estadística sobre el uso del sitio web sin identificar personalmente los visitantes.</li>
+    </ul>
+    <p>En todos los casos las <i>cookies</i> consiguen que los sitios web sean más útiles para tú y nosotros las consideramos como un recurso para hacer que el web sea más efectivo, útil y práctico. Siempre respetamos tu intimidad y la de todas las personas que nos visitan, como tiene que ser.</p>
+    
+    <h2>Puedes cambiar de opinión y eliminar las <i>cookies</i> cuando quieras</h2>
+    <p>Para consultar y gestionar las <i>cookies</i> instaladas a tu equipo hace falta que cambies la configuración de tu navegador. Encontrarás información detallada en los siguientes enlaces:</p>
+{% endif %}
+    <ul>
+        <li>Firefox: <a href="http://support.mozilla.org/es/products/firefox/privacy-and-security/cookies">http://support.mozilla.org/es/products/firefox/privacy-and-security/cookies</a></li>
+        <li>Chrome: <a href="https://support.google.com/chrome/answer/95647">https://support.google.com/chrome/answer/95647</a></li>
+        <li>Internet Explorer: <a href="http://windows.microsoft.com/es-es/windows7/how-to-manage-cookies-in-internet-explorer-9">http://windows.microsoft.com/es-es/windows7/how-to-manage-cookies-in-internet-explorer-9</a></li>
+        <li>Safari: <a href="http://support.apple.com/kb/ph5042">http://support.apple.com/kb/ph5042</a></li>
+    </ul>
+</div>
+{% endblock %}

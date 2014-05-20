@@ -12,4 +12,16 @@ class IndexController extends AbstractController
             'form'  => $this->form()->getForm()->createView()
         ));
     }
+    
+    public function faqAction()
+    {
+        return $this->render('faq.twig', array(
+            'questions'  => range(1, 8)
+        ));
+    }
+    
+    public function cookiesAction()
+    {
+        return $this->render('cookies.twig');
+    }
 }
