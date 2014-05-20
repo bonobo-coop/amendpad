@@ -24,7 +24,10 @@ if ($dump) {
 $app->register(new Silex\Provider\MonologServiceProvider(), array(
     'monolog.logfile' => __DIR__ . '/../data/main.log',
 ))->register(new Silex\Provider\TwigServiceProvider(), array(
-    'twig.path' => __DIR__ . '/../views',
+    'twig.path'    => __DIR__ . '/../views',
+    'twig.options' => array(
+        'cache' => __DIR__ . '/../data/cache'
+    ),
 ))->register(new Silex\Provider\SessionServiceProvider(
     // no config
 ))->register(new Silex\Provider\ValidatorServiceProvider(
