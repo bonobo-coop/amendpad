@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{% block title %}{% endblock %} - AmendPad</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="shortcut icon" href="/img/favicon.ico">
+        <!-- Bootstrap -->
+        <link href="/themes/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen" />
+        <!-- Custom style -->
+        {% stylesheets './resources/css/*-all.css' filter='?yui_css' output='/assets/css/*' %}
+            <link href="{{ asset_url }}" type="text/css" rel="stylesheet" />
+        {% endstylesheets %}
+        {% stylesheets './resources/css/*-print.css' filter='?yui_css' output='/assets/css/*' %}
+            <link href="{{ asset_url }}" type="text/css" rel="stylesheet" media="print" />
+        {% endstylesheets %}
+        <!-- Dynamic section -->
+        {% block head %}
+        {% endblock %}
+    </head>
+    <body>
+        <div class="container-narrow">
+            <div class="masthead">
+                <div id="language" class="btn-group pull-right">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                        {{ locales[locale] }} <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        {% for code, lang in locales %}
+                            {% if code != locale %}
+                            <li><a href="?lang={{ code }}">{{ lang|e }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+                <h1><span id="logo" title="AmendPad">amendpad</span> <small>{{ block('title') }}</small></h1>
+            </div>
+            <hr>
+            {% if cookies %}
+            <div class="cookies-warning alert alert-info alert-block">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                {{ 'messages.cookies.info' | trans | raw }}
+            </div>
+            {% endif %}
+            <div id="content">
+                {% block content %}
+                {% endblock %}
+            </div>
+            <hr>
+            <div id="footer">
+                <ul class="nav nav-pills pull-left">
+                    <li><a href="/">{{ 'page.home.title' | trans }}</a></li>
+                    <li><a href="https://github.com/bonobo-coop/amendpad" target="_blank">{{ 'page.about.title' | trans }}</a></li>
+                    <li><a href="/faq">{{ 'page.faq.title' | trans }}</a></li>
+                    <li><a href="/cookies">{{ 'page.cookies.title' | trans }}</a></li>
+                </ul>
+                <div id="copyleft" class="pull-right">
+                    (<span class="reverse" style="display: inline-block;">C</span>) Copyleft 2014 by <a target="_blank" href="http://bcommunity.es/">Bonobo Community</a>
+                </div>
+            </div>
+        </div><!-- /container -->
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+        <script type="text/javascript" src="/themes/bootstrap/js/bootstrap.min.js"></script>        
+        {% block javascript %}
+        {% endblock %}
+    </body>
+</html>
