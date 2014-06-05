@@ -72,6 +72,8 @@ page.faq.q7.q: "Puc sol·licitar una nova funcionalitat?"
 page.faq.q7.a: "No treballem gratuïtament però estem oberts a noves idees. Contacta'ns a <a href='mailto:amendpad@bcommunity.es'>amendpad@bcommunity.es</a> i t'escoltarem. Si desitges contractar-nos per a desenvolupar una nova funcionalitat, aquest desenvolupament haurà de ser sota la llicència de codi obert actual."
 page.faq.q8.q: "Qui hi ha darrera d'aquest projecte?"
 page.faq.q8.a: "<a href='http://bcommunity.es'>Bonobo Community</a>, una cooperativa de treball associat especialitzada en el món de les TIC."
+## Error
+page.error.button: "Tornar al inici"
 ## Cookies
 page.cookies.title: "Política de cookies"
 messages.cookies.info: "Utilitzem cookies per millorar el nostre servei. Si continues navegant, considerem que acceptes el seu ús. <a href='/cookies'>Més informació</a>"
