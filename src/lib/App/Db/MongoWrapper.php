@@ -70,7 +70,8 @@ class MongoWrapper
     {
         $c = $this->_getCollection($collection);
         if (!empty($indexes)) {
-            $c->ensureIndex($indexes, array('unique' => $unique));
+            $mongoIndexes = array_fill_keys($indexes, 1);
+            $c->ensureIndex($mongoIndexes, array('unique' => $unique));
         }
         $success = $c->insert($document);
         if ($success) {
