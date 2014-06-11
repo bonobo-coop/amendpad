@@ -30,7 +30,9 @@ class MongoWrapper
     protected function _openConnection()
     {
         if (!$this->_conn) {
-            $this->_conn = new \Mongo('mongodb://' . $this->_server);
+            $this->_conn = new \Mongo('mongodb://' . $this->_server, array(
+                'db' => $this->_dbname
+            ));
         } else if (!$this->_conn->connected) {
             $this->_conn->connect();
         }
