@@ -127,7 +127,7 @@ $app->before(function () use ($app, $locales) {
  * Controllers
  */
 
-$db = new App\Db\MongoWrapper('localhost:27017', 'amendpad');
+$db = new App\Db\MongoWrapper('user:pass@localhost:27017', 'amendpad');
 
 $app['index.controller'] = $app->share(function() use ($app, $db) {
     return new App\Controller\IndexController($app, $db);
